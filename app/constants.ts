@@ -78,7 +78,7 @@ export const DONORS_22F_23S: Donors = [
   ["Siddharth Bid", undefined],
   ["Eric Estrada", undefined],
   ["Sonal Aggarwal", undefined],
-  ["Kimberly Vu", undefined],
+  ["Anonymous", undefined],
   ["Jason An", undefined],
   ["Justin He", undefined],
 ];
