@@ -69,6 +69,8 @@ const Navbar = () => {
           )}
         </div>
       </div>
+      {/* https://github.com/reactjs/react-modal/issues/960 */}
+      {/* @ts-ignore */}
       <Modal
         isOpen={searchModalOpen}
         onRequestClose={() => {
