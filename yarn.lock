@@ -2488,42 +2488,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"grades.natecation.xyz@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "grades.natecation.xyz@workspace:."
-  dependencies:
-    "@types/lodash": ^4.14.200
-    "@types/multistream": ^4.1.2
-    "@types/node": ^20.8.9
-    "@types/react": 18.3.11
-    "@types/react-dom": 18.3.1
-    "@types/react-modal": 3.16.3
-    autoprefixer: 10.4.16
-    chart.js: ^4.4.0
-    classnames: ^2.3.2
-    csv: ^6.3.3
-    date-fns: ^2.30.0
-    eslint: 8.50.0
-    eslint-config-next: 13.5.3
-    eslint-config-prettier: ^8.8.0
-    lodash: ^4.17.21
-    mkdirp: ^3.0.1
-    multistream: ^4.1.0
-    next: 14.2.12
-    postcss: 8.4.31
-    prettier: ^3.0.0
-    react: 18.2.0
-    react-chartjs-2: ^5.2.0
-    react-dom: 18.2.0
-    react-fast-marquee: ^1.6.1
-    react-modal: ^3.16.1
-    react-select: ^5.7.5
-    tailwindcss: 3.3.3
-    ts-node: ^10.9.1
-    typescript: 5.2.2
-  languageName: unknown
-  linkType: soft
-
 "graphemer@npm:^1.4.0":
   version: 1.4.0
   resolution: "graphemer@npm:1.4.0"
@@ -4907,6 +4871,42 @@ __metadata:
   checksum: 07106822b4305de3f22835cbba949a2b35451cad50888759b6818421290ff95d522b38ef7919e70fb381c5fe9c1c643d7dea22c8b31652a717ddbd57b7f4d554
   languageName: node
   linkType: hard
+
+"uclagrades.com@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "uclagrades.com@workspace:."
+  dependencies:
+    "@types/lodash": ^4.14.200
+    "@types/multistream": ^4.1.2
+    "@types/node": ^20.8.9
+    "@types/react": 18.3.11
+    "@types/react-dom": 18.3.1
+    "@types/react-modal": 3.16.3
+    autoprefixer: 10.4.16
+    chart.js: ^4.4.0
+    classnames: ^2.3.2
+    csv: ^6.3.3
+    date-fns: ^2.30.0
+    eslint: 8.50.0
+    eslint-config-next: 13.5.3
+    eslint-config-prettier: ^8.8.0
+    lodash: ^4.17.21
+    mkdirp: ^3.0.1
+    multistream: ^4.1.0
+    next: 14.2.12
+    postcss: 8.4.31
+    prettier: ^3.0.0
+    react: 18.2.0
+    react-chartjs-2: ^5.2.0
+    react-dom: 18.2.0
+    react-fast-marquee: ^1.6.1
+    react-modal: ^3.16.1
+    react-select: ^5.7.5
+    tailwindcss: 3.3.3
+    ts-node: ^10.9.1
+    typescript: 5.2.2
+  languageName: unknown
+  linkType: soft
 
 "unbox-primitive@npm:^1.0.2":
   version: 1.0.2
