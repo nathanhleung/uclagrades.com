@@ -55,7 +55,7 @@ export const DONORS_21F_222: Donors = [
 ];
 
 export const DONORS_22F_23S: Donors = [
-  ["Pavan Radhakrishnan", undefined],
+  ["Anonymous", undefined],
   ["Anonymous", "https://youtu.be/JfJsVhiLL8o?si=UWXKkHvljVCuPPDo"],
   ["Mark Gross", undefined],
   ["Christopher Milan", undefined],
