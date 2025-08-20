@@ -7,8 +7,8 @@ import "./globals.css";
 
 export const metadata = {
   title: {
-    template: "%s | UCLA Grade Distributions 2021-23",
-    default: "UCLA Grade Distributions 2021-23",
+    template: "%s | UCLA Grade Distributions 2021-24",
+    default: "UCLA Grade Distributions 2021-24",
   },
   description:
     "Grade distribution data was sourced through a public records request made under the California Public Records Act. 40+ UCLA students paid $131.25 to obtain these records.",
