@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prepare": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' data/clean.ts",
+    "generate": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' data/clean.ts",
     "dev": "next dev",
-    "build": "NEXT_PUBLIC_COMMIT_HASH=$(git rev-parse HEAD) next build",
+    "build": "yarn run generate && NEXT_PUBLIC_COMMIT_HASH=$(git rev-parse HEAD) next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier . --write"
