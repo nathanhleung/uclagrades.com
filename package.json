@@ -5,7 +5,7 @@
   "scripts": {
     "prepare": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' data/clean.ts",
     "dev": "next dev",
-    "build": "next build",
+    "build": "NEXT_PUBLIC_COMMIT_HASH=$(git rev-parse HEAD) next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier . --write"

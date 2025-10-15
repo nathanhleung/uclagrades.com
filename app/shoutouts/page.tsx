@@ -1,4 +1,9 @@
-import { DONORS_21F_222, DONORS_22F_23S, Donors } from "../constants";
+import {
+  DONORS_21F_222,
+  DONORS_22F_23S,
+  DONORS_241_25S,
+  Donors,
+} from "../constants";
 
 type DonorsListProps = {
   heading: string;
@@ -43,8 +48,10 @@ export default function Shoutouts() {
             Thank you to the following individuals who contributed funds in
             order to get the grade distributions on this site:
           </p>
+          <DonorsList heading="2024–25" donors={DONORS_241_25S} />
           <DonorsList heading="2022–23" donors={DONORS_22F_23S} />
           <DonorsList heading="2021–22" donors={DONORS_21F_222} />
+
           <p>
             If you&apos;re on the list above and you&apos;d like a link added to
             your name, please{" "}

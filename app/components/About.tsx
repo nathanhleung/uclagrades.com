@@ -26,8 +26,8 @@ const About = () => {
       >
         paid $131.25
       </a>{" "}
-      to obtain these records. Grade distribution data from 2022–2023 was
-      sourced similarly.
+      to obtain these records. Grade distribution data from 2022–2023 and
+      2024–2025 were sourced similarly.
       <br />
       <br />
       UCLA students can download the data on Google Drive (log into your UCLA
@@ -57,6 +57,15 @@ const About = () => {
         className="text-uclaBlue hover:opacity-50"
       >
         Summer 2023–Spring 2024
+      </a>
+      ,{" "}
+      <a
+        href="https://docs.google.com/spreadsheets/d/1BIHfuZpi9SvhuBXdI2fHPGIILpj1sAAk/edit?usp=sharing"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-uclaBlue hover:opacity-50"
+      >
+        Summer 2024–Spring 2025
       </a>
       <br />
       <br />

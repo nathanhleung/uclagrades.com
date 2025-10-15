@@ -20,7 +20,13 @@ export default function Home() {
             "Fall 2023",
             "Winter 2024",
             "Spring 2024",
-          ].join(" · ")}
+            "Summer 2024",
+            "Fall 2024",
+            "Winter 2025",
+            "Spring 2025",
+          ]
+            .toReversed()
+            .join(" · ")}
         </h2>
       </div>
 

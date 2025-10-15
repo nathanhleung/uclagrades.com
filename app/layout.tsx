@@ -7,8 +7,8 @@ import "./globals.css";
 
 export const metadata = {
   title: {
-    template: "%s | UCLA Grade Distributions 2021-24",
-    default: "UCLA Grade Distributions 2021-24",
+    template: "%s | UCLA Grade Distributions 2021-25",
+    default: "UCLA Grade Distributions 2021-25",
   },
   description:
     "Grade distribution data was sourced through a public records request made under the California Public Records Act. 40+ UCLA students paid $131.25 to obtain these records.",
@@ -25,10 +25,10 @@ export default function RootLayout({
         <GoogleAnalytics />
       </head>
       <body className="flex flex-col min-h-screen border-b-uclaBlue border-b-[12px]">
-        <div className="w-full py-2 bg-uclaGold select-none">
+        <div className="w-full py-2 bg-green-500 select-none">
           <Marquee autoFill pauseOnHover speed={20}>
             <p className="px-12 uppercase font-bold">
-              🎉 2023–24 grade distributions just dropped 🎉
+              🎉 2024–25 grade distributions just dropped 🎉
             </p>
           </Marquee>
         </div>

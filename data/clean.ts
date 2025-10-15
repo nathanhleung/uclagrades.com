@@ -38,20 +38,21 @@ async function parseAndIndexGrades(): Promise<
   const instructorIndex: InstructorIndex = {};
   const subjectIndex: SubjectIndex = {};
 
-  const streams = [
-    "header.csv",
+  // Newer data uses different column names and is processed separately.
+  const oldDataStreams = [
+    "header-old.csv",
     "grades-21f-222.csv",
     "grades-22f-23s.csv",
   ].map(
     (filename) => () =>
-      fs.createReadStream(path.resolve(CSV_DATA_DIR, filename)),
+      fs.createReadStream(path.resolve(CSV_DATA_DIR, filename))
   );
 
-  const oldDataParser = new MultiStream(streams).pipe(
-    csv.parse({ columns: true }),
+  const oldDataParser = new MultiStream(oldDataStreams).pipe(
+    csv.parse({ columns: true })
   );
   for await (const rawRow of oldDataParser) {
-    // Column names are defined in `header.csv`; they are the
+    // Column names are defined in `header-old.csv`; they are the
     // same for `21f-222` and `22f-23s` data.
     const row = {
       enrollmentTerm: rawRow["ENROLLMENT TERM"].trim(),
@@ -67,11 +68,20 @@ async function parseAndIndexGrades(): Promise<
     rows.push(row);
   }
 
-  const newDataParser = fs
-    .createReadStream(path.resolve(CSV_DATA_DIR, "grades-231-24s.csv"))
-    .pipe(csv.parse({ columns: true }));
+  const newDataStreams = [
+    "header-new.csv",
+    "grades-231-24s.csv",
+    "grades-241-25s.csv",
+  ].map(
+    (filename) => () =>
+      fs.createReadStream(path.resolve(CSV_DATA_DIR, filename))
+  );
+
+  const newDataParser = new MultiStream(newDataStreams).pipe(
+    csv.parse({ columns: true })
+  );
   for await (const rawRow of newDataParser) {
-    // The newer `231-24s` data uses different column names.
+    // The newer data uses different column names. Defined in `header-new.csv`.
     const row = {
       enrollmentTerm: rawRow["enrl_term_cd"].trim(),
       subjectArea: rawRow["subj_area_cd"].trim(),
@@ -120,17 +130,17 @@ async function main() {
     fs.promises.writeFile(
       path.resolve(generatedDataDir, "rows.json"),
       JSON.stringify(rows),
-      "utf-8",
+      "utf-8"
     ),
     fs.promises.writeFile(
       path.resolve(generatedDataDir, "instructor-index.json"),
       JSON.stringify(instructorIndex),
-      "utf-8",
+      "utf-8"
     ),
     fs.promises.writeFile(
       path.resolve(generatedDataDir, "subject-index.json"),
       JSON.stringify(subjectIndex),
-      "utf-8",
+      "utf-8"
     ),
   ]);
 

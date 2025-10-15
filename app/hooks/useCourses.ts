@@ -33,9 +33,13 @@ function useCourses() {
   const [instructors, setInstructors] = useState<InstructorsResponse>();
 
   useEffect(() => {
-    const cachedCourses = window.localStorage.getItem("courses");
+    const cachedCourses = window.localStorage.getItem(
+      `courses-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`
+    );
     const cachedCoursesExpiration = new Date(
-      window.localStorage.getItem("courses-expiration") ?? 0,
+      window.localStorage.getItem(
+        `courses-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`
+      ) ?? 0
     );
     const now = new Date();
 
@@ -46,10 +50,13 @@ function useCourses() {
       getCourses()
         .then((json) => {
           setCourses(json);
-          window.localStorage.setItem("courses", JSON.stringify(json));
           window.localStorage.setItem(
-            "courses-expiration",
-            addDays(now, 1).toISOString(),
+            `courses-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
+            JSON.stringify(json)
+          );
+          window.localStorage.setItem(
+            `courses-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
+            addDays(now, 1).toISOString()
           );
         })
         .finally(() => {
@@ -59,9 +66,13 @@ function useCourses() {
   }, []);
 
   useEffect(() => {
-    const cachedInstructors = window.localStorage.getItem("instructors");
+    const cachedInstructors = window.localStorage.getItem(
+      `instructors-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`
+    );
     const cachedInstructorsExpiration = new Date(
-      window.localStorage.getItem("instructors-expiration") ?? 0,
+      window.localStorage.getItem(
+        `instructors-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`
+      ) ?? 0
     );
     const now = new Date();
 
@@ -72,10 +83,13 @@ function useCourses() {
       getInstructors()
         .then((json) => {
           setInstructors(json);
-          window.localStorage.setItem("instructors", JSON.stringify(json));
           window.localStorage.setItem(
-            "instructors-expiration",
-            addDays(now, 1).toISOString(),
+            `instructors-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
+            JSON.stringify(json)
+          );
+          window.localStorage.setItem(
+            `instructors-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
+            addDays(now, 1).toISOString()
           );
         })
         .finally(() => {

@@ -36,6 +36,15 @@ export default function About() {
           >
             Summer 2023–Spring 2024
           </a>
+          ,{" "}
+          <a
+            href="https://docs.google.com/spreadsheets/d/1BIHfuZpi9SvhuBXdI2fHPGIILpj1sAAk/edit?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-uclaBlue hover:opacity-50"
+          >
+            Summer 2024–Spring 2025
+          </a>
         </div>
         <div className="text-justify">
           <p>
@@ -181,6 +190,15 @@ export default function About() {
               className="text-uclaBlue hover:opacity-50"
             >
               Summer 2023–Spring 2024
+            </a>
+            ,{" "}
+            <a
+              href="https://docs.google.com/spreadsheets/d/1BIHfuZpi9SvhuBXdI2fHPGIILpj1sAAk/edit?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-uclaBlue hover:opacity-50"
+            >
+              Summer 2024–Spring 2025
             </a>
           </p>
           <a
