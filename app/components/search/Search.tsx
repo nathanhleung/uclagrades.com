@@ -2,23 +2,14 @@
 
 import { Input } from "@/app/components/Input";
 import { Loading } from "@/app/components/Loading";
-import {
-  CatalogNumberQueryResults,
-  matchCourse,
-} from "@/app/components/search/CatalogNumberQueryResults";
+import { CatalogNumberQueryResults } from "@/app/components/search/CatalogNumberQueryResults";
 import { CourseQueryResults } from "@/app/components/search/CourseQueryResults";
 import { InstructorQueryResults } from "@/app/components/search/InstructorQueryResults";
 import { SubjectAreaQueryResults } from "@/app/components/search/SubjectAreaQueryResults";
 import useCourses from "@/app/hooks/useCourses";
 import classNames from "classnames";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
-import {
-  getSubjectAreaLongName,
-  matchInstructor,
-  matchSubjectArea,
-} from "@/app/utils";
-import { useRouter } from "next/navigation";
+import { Suspense, SyntheticEvent, useEffect, useRef, useState } from "react";
 
 type SearchProps = {
   onlyInput?: boolean;
@@ -31,16 +22,24 @@ const Search = ({ onlyInput = false }: SearchProps) => {
   const { courses, instructors, isLoading } = useCourses();
 
   const [selectedSubjectArea, setSelectedSubjectArea] = useState("");
+  const [subjectActiveIndex, setSubjectActiveIndex] = useState(0);
+  const subjectResultsRef = useRef<HTMLUListElement>(null);
   const subjectAreaQueryInputRef = useRef<HTMLInputElement>(null);
 
   const [catalogNumberQuery, setCatalogNumberQuery] = useState("");
   const catalogNumberQueryInputRef = useRef<HTMLInputElement>(null);
+  const [catalogActiveIndex, setCatalogActiveIndex] = useState(0);
+  const catalogResultsRef = useRef<HTMLUListElement>(null);
+
+  const [courseActiveIndex, setCourseActiveIndex] = useState(0);
+  const courseResultsRef = useRef<HTMLUListElement>(null);
 
   const [isSearchingByInstructor, setIsSearchingByInstructor] = useState(false);
   const [instructorQuery, setInstructorQuery] = useState("");
+  const [instructorActiveIndex, setInstructorActiveIndex] = useState(0);
   const [selectedInstructor, setSelectedInstructor] = useState("");
+  const instructorResultsRef = useRef<HTMLUListElement>(null);
   const instructorQueryInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (pathname === "/" && searchParams.has("subjectArea")) {
@@ -74,6 +73,12 @@ const Search = ({ onlyInput = false }: SearchProps) => {
       });
     }
   }, [pathname, searchParams]);
+
+  useEffect(() => {
+    if (selectedInstructor) {
+      console.log("here");
+    }
+  }, [selectedInstructor]);
 
   let prompt = "";
   if (isSearchingByInstructor) {
@@ -128,36 +133,46 @@ const Search = ({ onlyInput = false }: SearchProps) => {
               }
             }}
             onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                instructorQuery !== "" &&
-                selectedInstructor === ""
-              ) {
-                const instructorNames = Object.keys(instructors);
-                const matcher = matchInstructor(instructorQuery, instructors);
-                const matchingAreas = instructorNames
-                  .map((area) => ({ area, result: matcher(area) }))
-                  .filter(({ result }) => result.matches)
-                  .sort((a, b) => b.result.score - a.result.score);
-
-                if (matchingAreas.length > 0) {
-                  const professorArea = matchingAreas[0].area;
-                  setSelectedInstructor(professorArea);
-
-                  if (pathname === "/") {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set("instructor", professorArea);
-                    history.pushState({}, "", url);
-                  }
-
-                  // Wait until next tick to ensure component is mounted
-                  requestAnimationFrame(() => {
-                    catalogNumberQueryInputRef.current?.focus();
-                  });
-                  requestAnimationFrame(() => {
-                    catalogNumberQueryInputRef.current?.focus();
-                  });
-                }
+              const element = instructorResultsRef.current?.children[
+                instructorActiveIndex
+              ] as HTMLLIElement | undefined;
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                const next = Math.min(
+                  instructorActiveIndex + 1,
+                  instructorResultsRef.current?.childNodes?.length! - 1,
+                );
+                setInstructorActiveIndex(next);
+                (
+                  instructorResultsRef.current?.children[next] as HTMLLIElement
+                ).focus();
+                (
+                  instructorResultsRef.current?.children[next - 1]
+                    ?.firstChild as HTMLLIElement
+                ).classList.remove("opacity-75");
+                (
+                  instructorResultsRef.current?.children[next]
+                    ?.firstChild as HTMLLIElement
+                ).classList.add("opacity-75");
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                const prev = Math.max(instructorActiveIndex - 1, 0);
+                setInstructorActiveIndex(prev);
+                (
+                  instructorResultsRef.current?.children[prev] as HTMLLIElement
+                ).focus();
+                (
+                  instructorResultsRef.current?.children[prev + 1]
+                    ?.firstChild as HTMLLIElement
+                ).classList.remove("opacity-75");
+                (
+                  instructorResultsRef.current?.children[prev]
+                    ?.firstChild as HTMLLIElement
+                ).classList.add("opacity-75");
+              } else if (e.key == "Enter") {
+                element?.click();
+              } else {
+                setInstructorActiveIndex(0);
               }
             }}
           />
@@ -192,36 +207,46 @@ const Search = ({ onlyInput = false }: SearchProps) => {
               }
             }}
             onKeyDown={(e) => {
-              if (
-                e.key === "Enter" &&
-                subjectAreaQuery !== "" &&
-                selectedSubjectArea === ""
-              ) {
-                const subjectAreas = Object.keys(courses);
-                const matcher = matchSubjectArea(subjectAreaQuery, courses);
-                const matchingAreas = subjectAreas
-                  .map((area) => ({ area, result: matcher(area) }))
-                  .filter(({ result }) => result.matches)
-                  .sort((a, b) => b.result.score - a.result.score);
-
-                if (matchingAreas.length > 0) {
-                  const subjectArea = matchingAreas[0].area;
-                  setSelectedSubjectArea(subjectArea);
-
-                  if (pathname === "/") {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set("subjectArea", subjectArea);
-                    history.pushState({}, "", url);
-                  }
-
-                  // Wait until next tick to ensure component is mounted
-                  requestAnimationFrame(() => {
-                    catalogNumberQueryInputRef.current?.focus();
-                  });
-                  requestAnimationFrame(() => {
-                    catalogNumberQueryInputRef.current?.focus();
-                  });
-                }
+              const element = subjectResultsRef.current?.children[
+                subjectActiveIndex
+              ] as HTMLLIElement | undefined;
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                const next = Math.min(
+                  subjectActiveIndex + 1,
+                  subjectResultsRef.current?.childNodes?.length! - 1,
+                );
+                setSubjectActiveIndex(next);
+                (
+                  subjectResultsRef.current?.children[next] as HTMLLIElement
+                ).focus();
+                (
+                  subjectResultsRef.current?.children[next - 1]
+                    ?.firstChild as HTMLLIElement
+                ).classList.remove("opacity-75");
+                (
+                  subjectResultsRef.current?.children[next]
+                    ?.firstChild as HTMLLIElement
+                ).classList.add("opacity-75");
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                const prev = Math.max(subjectActiveIndex - 1, 0);
+                setSubjectActiveIndex(prev);
+                (
+                  subjectResultsRef.current?.children[prev] as HTMLLIElement
+                ).focus();
+                (
+                  subjectResultsRef.current?.children[prev + 1]
+                    ?.firstChild as HTMLLIElement
+                ).classList.remove("opacity-75");
+                (
+                  subjectResultsRef.current?.children[prev]
+                    ?.firstChild as HTMLLIElement
+                ).classList.add("opacity-75");
+              } else if (e.key == "Enter") {
+                element?.click();
+              } else {
+                setSubjectActiveIndex(0);
               }
             }}
           />
@@ -257,21 +282,46 @@ const Search = ({ onlyInput = false }: SearchProps) => {
                 }
               }
 
-              if (e.key === "Enter" && catalogNumberQuery !== "") {
-                const matcher = matchCourse(catalogNumberQuery);
-                const matchingAreas = Object.values(
-                  courses[selectedSubjectArea] ?? {},
-                )
-                  .map((area) => ({ area, result: matcher(area) }))
-                  .filter(({ result }) => result.matches)
-                  .sort((a, b) => b.result.score - a.result.score);
-                console.log(matchingAreas);
-                if (matchingAreas.length > 0) {
-                  const selectedCourse = matchingAreas[0].area;
-                  router.push(
-                    `/${selectedSubjectArea}/${selectedCourse.catalogNumber}`,
-                  );
-                }
+              const element = catalogResultsRef.current?.children[
+                catalogActiveIndex
+              ] as HTMLLIElement | undefined;
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                const next = Math.min(
+                  catalogActiveIndex + 1,
+                  catalogResultsRef.current?.childNodes?.length! - 1,
+                );
+                setCatalogActiveIndex(next);
+                (
+                  catalogResultsRef.current?.children[next] as HTMLLIElement
+                ).focus();
+                (
+                  catalogResultsRef.current?.children[next - 1]
+                    ?.firstChild as HTMLLIElement
+                ).classList.remove("opacity-75");
+                (
+                  catalogResultsRef.current?.children[next]
+                    ?.firstChild as HTMLLIElement
+                ).classList.add("opacity-75");
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                const prev = Math.max(catalogActiveIndex - 1, 0);
+                setCatalogActiveIndex(prev);
+                (
+                  catalogResultsRef.current?.children[prev] as HTMLLIElement
+                ).focus();
+                (
+                  catalogResultsRef.current?.children[prev + 1]
+                    ?.firstChild as HTMLLIElement
+                ).classList.remove("opacity-75");
+                (
+                  catalogResultsRef.current?.children[prev]
+                    ?.firstChild as HTMLLIElement
+                ).classList.add("opacity-75");
+              } else if (e.key == "Enter") {
+                (element?.firstChild?.firstChild as HTMLLinkElement).click();
+              } else {
+                setCatalogActiveIndex(0);
               }
             }}
           />
@@ -284,6 +334,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
             <InstructorQueryResults
               query={instructorQuery}
               instructors={instructors}
+              ref={instructorResultsRef}
               onSelectInstructor={(instructor) => {
                 setSelectedInstructor(instructor);
 
@@ -305,6 +356,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
               })
               .flat()}
             query=""
+            ref={courseResultsRef}
             queryParams={`instructor=${selectedInstructor}`}
             matcher={() => () => ({ matches: true, score: 0 })}
           />
@@ -314,6 +366,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
             <SubjectAreaQueryResults
               courses={courses}
               query={subjectAreaQuery}
+              ref={subjectResultsRef}
               onSelectSubjectArea={(subjectArea) => {
                 setSelectedSubjectArea(subjectArea);
 
@@ -342,12 +395,13 @@ const Search = ({ onlyInput = false }: SearchProps) => {
             courses={courses}
             subjectArea={selectedSubjectArea}
             query={catalogNumberQuery}
+            ref={catalogResultsRef}
           />
         )}
       </div>
       <div className="flex items-center justify-center mt-8">
         <span
-          className="text-xs underline hover:opacity-50 cursor-pointer select-none text-white"
+          className="text-xs underline hover:opacity-75 cursor-pointer select-none text-white"
           onClick={() => {
             if (pathname === "/") {
               const url = new URL(window.location.href);

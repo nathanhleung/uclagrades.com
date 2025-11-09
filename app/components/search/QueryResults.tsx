@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { forwardRef, Ref, useCallback, useEffect, useMemo } from "react";
 
 type QueryResultsProps<T> = {
   /** The search query */
@@ -31,15 +31,18 @@ type QueryResultsProps<T> = {
   noResultsMessage?: string;
 };
 
-function QueryResults<T>({
-  query,
-  matcher,
-  data,
-  onSelectResult = () => {},
-  keyExtractor = (datum) => datum?.toString() ?? "",
-  renderResult,
-  noResultsMessage = "No results",
-}: QueryResultsProps<T>) {
+function QueryResultsInner<T>(
+  {
+    query,
+    matcher,
+    data,
+    onSelectResult = () => {},
+    keyExtractor = (datum) => datum?.toString() ?? "",
+    renderResult,
+    noResultsMessage = "No results",
+  }: QueryResultsProps<T>,
+  ref: Ref<HTMLUListElement>,
+) {
   const matcherForQuery = useCallback(matcher(query), [query]);
 
   const predicate = useCallback(
@@ -61,14 +64,18 @@ function QueryResults<T>({
 
   return (
     <div className="shadow-lg">
-      <ul>
-        {results.map((datum) => (
+      <ul ref={ref}>
+        {results.map((datum, index) => (
           <li
             key={keyExtractor(datum)}
             onClick={() => onSelectResult(datum)}
             className="bg-uclaBlue"
           >
-            <div className="hover:opacity-50">{renderResult(datum)}</div>
+            <div
+              className={`hover:opacity-50 ${index == 0 ? "opacity-75" : ""}`}
+            >
+              {renderResult(datum)}
+            </div>
           </li>
         ))}
         {query !== "" && results.length === 0 && (
@@ -92,5 +99,9 @@ function QueryResults<T>({
     </div>
   );
 }
+
+const QueryResults = forwardRef(QueryResultsInner) as <T>(
+  props: QueryResultsProps<T> & { ref?: Ref<HTMLUListElement> },
+) => JSX.Element;
 
 export { QueryResults };
