@@ -34,12 +34,12 @@ function useCourses() {
 
   useEffect(() => {
     const cachedCourses = window.localStorage.getItem(
-      `courses-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`
+      `courses-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
     );
     const cachedCoursesExpiration = new Date(
       window.localStorage.getItem(
-        `courses-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`
-      ) ?? 0
+        `courses-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
+      ) ?? 0,
     );
     const now = new Date();
 
@@ -52,11 +52,11 @@ function useCourses() {
           setCourses(json);
           window.localStorage.setItem(
             `courses-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
-            JSON.stringify(json)
+            JSON.stringify(json),
           );
           window.localStorage.setItem(
             `courses-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
-            addDays(now, 1).toISOString()
+            addDays(now, 1).toISOString(),
           );
         })
         .finally(() => {
@@ -67,12 +67,12 @@ function useCourses() {
 
   useEffect(() => {
     const cachedInstructors = window.localStorage.getItem(
-      `instructors-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`
+      `instructors-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
     );
     const cachedInstructorsExpiration = new Date(
       window.localStorage.getItem(
-        `instructors-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`
-      ) ?? 0
+        `instructors-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
+      ) ?? 0,
     );
     const now = new Date();
 
@@ -85,11 +85,11 @@ function useCourses() {
           setInstructors(json);
           window.localStorage.setItem(
             `instructors-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
-            JSON.stringify(json)
+            JSON.stringify(json),
           );
           window.localStorage.setItem(
             `instructors-expiration-${process.env.NEXT_PUBLIC_COMMIT_HASH ?? "dev"}`,
-            addDays(now, 1).toISOString()
+            addDays(now, 1).toISOString(),
           );
         })
         .finally(() => {

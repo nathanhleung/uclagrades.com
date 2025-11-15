@@ -1,5 +1,6 @@
 import { Response } from "@/app/api/courses/route";
 import { CourseQueryResults } from "./CourseQueryResults";
+import { forwardRef } from "react";
 
 function getSubjectAreaCourses(courses: Response, subjectArea: string) {
   return Object.values(courses[subjectArea] ?? {});
@@ -45,20 +46,22 @@ type CatalogNumberQueryResultsProps = {
   query: string;
 };
 
-const CatalogNumberQueryResults = ({
-  courses,
-  subjectArea,
-  query,
-}: CatalogNumberQueryResultsProps) => {
+const CatalogNumberQueryResults = forwardRef<
+  HTMLUListElement,
+  CatalogNumberQueryResultsProps
+>(({ courses, subjectArea, query }: CatalogNumberQueryResultsProps, ref) => {
   const subjectAreaCourses = getSubjectAreaCourses(courses, subjectArea);
 
   return (
     <CourseQueryResults
       courses={subjectAreaCourses}
       query={query}
+      ref={ref}
       matcher={matchCourse}
     />
   );
-};
+});
+
+CatalogNumberQueryResults.displayName = "CatalogNumberQueryResults";
 
 export { CatalogNumberQueryResults };
