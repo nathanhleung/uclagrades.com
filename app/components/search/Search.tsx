@@ -100,12 +100,6 @@ const Search = ({ onlyInput = false }: SearchProps) => {
         ? setSubjectActiveIndex
         : setCatalogActiveIndex;
 
-    // this is true for elements that navigate by directly clicking on it (eg: subject selection)
-    // and false if you need to click on an inner link (eg: course selection)
-    const clickElem = isSearchingByInstructor
-      ? selectedInstructor === ""
-      : selectedSubjectArea === "";
-
     const handler = (e: KeyboardEvent) => {
       const element = ref.current?.children[activeIndex] as
         | HTMLLIElement
@@ -146,11 +140,11 @@ const Search = ({ onlyInput = false }: SearchProps) => {
         }
       } else if (e.key === "Enter") {
         setActiveIndex(0);
-        if (clickElem) {
-          element?.click();
+        const maybeLinkElem = element?.querySelector("a");
+        if (maybeLinkElem) {
+          maybeLinkElem?.click();
         } else {
-          const link = element?.querySelector("a") as HTMLAnchorElement;
-          link?.click();
+          element?.click();
         }
       } else {
         setActiveIndex(0);
