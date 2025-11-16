@@ -1,6 +1,5 @@
 import { Response } from "@/app/api/courses/route";
 import { CourseQueryResults } from "./CourseQueryResults";
-import { act, forwardRef } from "react";
 
 function getSubjectAreaCourses(courses: Response, subjectArea: string) {
   return Object.values(courses[subjectArea] ?? {});
