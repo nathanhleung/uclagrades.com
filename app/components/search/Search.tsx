@@ -231,6 +231,8 @@ const Search = ({ onlyInput = false }: SearchProps) => {
                 setSelectedSubjectArea("");
                 setSubjectAreaQuery(selectedSubjectArea);
                 setCatalogNumberQuery("");
+                setCatalogActiveIndex(0);
+                setSubjectActiveIndex(0);
                 subjectAreaQueryInputRef.current?.focus();
 
                 if (pathname === "/") {
