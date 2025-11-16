@@ -1,4 +1,4 @@
-import { ForwardedRef, forwardRef, useState } from "react";
+import { forwardRef, useState } from "react";
 import { Loading } from "../Loading";
 import { QueryResults } from "./QueryResults";
 import { BaseCourseRow } from "@/app/types";
@@ -30,13 +30,13 @@ type CourseQueryResultsProps = {
 const CourseQueryResults = forwardRef<
   HTMLUListElement,
   CourseQueryResultsProps
->(({ courses, query, queryParams, matcher }: CourseQueryResultsProps, ref) => {
+>(({ courses, query, queryParams, matcher }, ref) => {
   return (
     <QueryResults
+      ref={ref}
       data={courses}
       query={query}
       matcher={matcher}
-      ref={ref}
       keyExtractor={(it) => it.catalogNumber}
       noResultsMessage="No courses found matching your query"
       renderResult={(row) => {

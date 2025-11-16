@@ -49,14 +49,14 @@ type CatalogNumberQueryResultsProps = {
 const CatalogNumberQueryResults = forwardRef<
   HTMLUListElement,
   CatalogNumberQueryResultsProps
->(({ courses, subjectArea, query }: CatalogNumberQueryResultsProps, ref) => {
+>(({ courses, subjectArea, query }, ref) => {
   const subjectAreaCourses = getSubjectAreaCourses(courses, subjectArea);
 
   return (
     <CourseQueryResults
+      ref={ref}
       courses={subjectAreaCourses}
       query={query}
-      ref={ref}
       matcher={matchCourse}
     />
   );
