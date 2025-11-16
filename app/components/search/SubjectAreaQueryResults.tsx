@@ -53,6 +53,9 @@ type SubjectAreaQueryResultsProps = {
    *  from the query results
    */
   onSelectSubjectArea(subjectArea: string): void;
+  /**
+   * The index that is currently highlighted in the results list.
+   */
   activeIndex: number;
 };
 
@@ -60,7 +63,7 @@ const SubjectAreaQueryResults = ({
   courses,
   query,
   onSelectSubjectArea,
-  activeIndex = 0,
+  activeIndex,
 }: SubjectAreaQueryResultsProps) => {
   const subjectAreas = Object.keys(courses);
 

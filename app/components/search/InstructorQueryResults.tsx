@@ -13,6 +13,9 @@ type InstructorQueryResultsProps = {
    *  from the query results
    */
   onSelectInstructor(instructor: string): void;
+  /**
+   * The index that is currently highlighted in the results list.
+   */
   activeIndex: number;
 };
 
@@ -20,7 +23,7 @@ const InstructorQueryResults = ({
   instructors,
   query,
   onSelectInstructor,
-  activeIndex = 0,
+  activeIndex,
 }: InstructorQueryResultsProps) => {
   const instructorNames = Object.keys(instructors);
 

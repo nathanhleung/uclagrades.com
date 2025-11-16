@@ -88,12 +88,16 @@ const Search = ({ onlyInput = false }: SearchProps) => {
         : setCatalogActiveIndex;
 
     const handler = (e: KeyboardEvent) => {
-      const element = document.querySelector("ul") as
-        | HTMLUListElement
-        | undefined;
+      const resultsListElement = document.querySelector(
+        "ul[data-query-results]",
+      ) as HTMLUListElement | undefined;
+      const activeResultElement = resultsListElement?.children[activeIndex];
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        const next = Math.min(activeIndex + 1, element?.childElementCount! - 1);
+        const next = Math.min(
+          activeIndex + 1,
+          resultsListElement?.childElementCount! - 1,
+        );
         if (next !== activeIndex) {
           setActiveIndex(next);
         }
@@ -104,11 +108,11 @@ const Search = ({ onlyInput = false }: SearchProps) => {
           setActiveIndex(prev);
         }
       } else if (e.key === "Enter") {
-        const maybeLinkElem = element?.children[activeIndex].querySelector("a");
+        const maybeLinkElem = activeResultElement?.querySelector("a");
         if (maybeLinkElem) {
           maybeLinkElem?.click();
         } else {
-          (element?.children[activeIndex] as HTMLLIElement).click();
+          (activeResultElement as HTMLLIElement).click();
         }
       } else {
         setActiveIndex(0);

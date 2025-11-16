@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { useCallback, useMemo } from "react";
 
 type QueryResultsProps<T> = {
@@ -29,7 +30,10 @@ type QueryResultsProps<T> = {
    * The message to display when no results are found.
    */
   noResultsMessage?: string;
-  activeIndex?: number;
+  /**
+   * The index that is currently highlighted in the results list.
+   */
+  activeIndex: number;
 };
 
 function QueryResults<T>({
@@ -40,7 +44,7 @@ function QueryResults<T>({
   keyExtractor = (datum) => datum?.toString() ?? "",
   renderResult,
   noResultsMessage = "No results",
-  activeIndex = 0,
+  activeIndex,
 }: QueryResultsProps<T>) {
   const matcherForQuery = useCallback(matcher(query), [query]);
 
@@ -63,7 +67,7 @@ function QueryResults<T>({
 
   return (
     <div className="shadow-lg">
-      <ul>
+      <ul data-query-results>
         {results.map((datum, index) => (
           <li
             key={keyExtractor(datum)}
@@ -71,7 +75,10 @@ function QueryResults<T>({
             className="bg-uclaBlue"
           >
             <div
-              className={`hover:opacity-50 ${index === activeIndex ? "opacity-75" : ""}`}
+              className={classNames(
+                "hover:opacity-50",
+                index === activeIndex && "opacity-75",
+              )}
             >
               {renderResult(datum)}
             </div>

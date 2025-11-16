@@ -43,6 +43,9 @@ type CatalogNumberQueryResultsProps = {
    * The catalog number query
    */
   query: string;
+  /**
+   * The index that is currently highlighted in the results list.
+   */
   activeIndex: number;
 };
 

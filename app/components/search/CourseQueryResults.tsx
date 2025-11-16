@@ -25,6 +25,9 @@ type CourseQueryResultsProps = {
     matches: boolean;
     score: number;
   };
+  /**
+   * The index that is currently highlighted in the results list.
+   */
   activeIndex: number;
 };
 
