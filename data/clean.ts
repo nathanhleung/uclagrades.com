@@ -45,11 +45,11 @@ async function parseAndIndexGrades(): Promise<
     "grades-22f-23s.csv",
   ].map(
     (filename) => () =>
-      fs.createReadStream(path.resolve(CSV_DATA_DIR, filename))
+      fs.createReadStream(path.resolve(CSV_DATA_DIR, filename)),
   );
 
   const oldDataParser = new MultiStream(oldDataStreams).pipe(
-    csv.parse({ columns: true })
+    csv.parse({ columns: true }),
   );
   for await (const rawRow of oldDataParser) {
     // Column names are defined in `header-old.csv`; they are the
@@ -74,11 +74,11 @@ async function parseAndIndexGrades(): Promise<
     "grades-241-25s.csv",
   ].map(
     (filename) => () =>
-      fs.createReadStream(path.resolve(CSV_DATA_DIR, filename))
+      fs.createReadStream(path.resolve(CSV_DATA_DIR, filename)),
   );
 
   const newDataParser = new MultiStream(newDataStreams).pipe(
-    csv.parse({ columns: true })
+    csv.parse({ columns: true }),
   );
   for await (const rawRow of newDataParser) {
     // The newer data uses different column names. Defined in `header-new.csv`.
@@ -130,17 +130,17 @@ async function main() {
     fs.promises.writeFile(
       path.resolve(generatedDataDir, "rows.json"),
       JSON.stringify(rows),
-      "utf-8"
+      "utf-8",
     ),
     fs.promises.writeFile(
       path.resolve(generatedDataDir, "instructor-index.json"),
       JSON.stringify(instructorIndex),
-      "utf-8"
+      "utf-8",
     ),
     fs.promises.writeFile(
       path.resolve(generatedDataDir, "subject-index.json"),
       JSON.stringify(subjectIndex),
-      "utf-8"
+      "utf-8",
     ),
   ]);
 

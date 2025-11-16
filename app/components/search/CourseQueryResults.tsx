@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { Loading } from "../Loading";
 import { QueryResults } from "./QueryResults";
 import { BaseCourseRow } from "@/app/types";
@@ -27,14 +27,13 @@ type CourseQueryResultsProps = {
   };
 };
 
-const CourseQueryResults = ({
-  courses,
-  query,
-  queryParams,
-  matcher,
-}: CourseQueryResultsProps) => {
+const CourseQueryResults = forwardRef<
+  HTMLUListElement,
+  CourseQueryResultsProps
+>(({ courses, query, queryParams, matcher }, ref) => {
   return (
     <QueryResults
+      ref={ref}
       data={courses}
       query={query}
       matcher={matcher}
@@ -45,7 +44,9 @@ const CourseQueryResults = ({
       }}
     />
   );
-};
+});
+
+CourseQueryResults.displayName = "CourseQueryResults";
 
 type ResultProps = {
   row: BaseCourseRow & {
@@ -60,9 +61,7 @@ const Result = ({ row, queryParams }: ResultProps) => {
 
   return (
     <a
-      href={`/${row.subjectArea}/${row.catalogNumber}${
-        queryParams ? `?${queryParams}` : ""
-      }`}
+      href={`/${row.subjectArea}/${row.catalogNumber}${queryParams ? `?${queryParams}` : ""}`}
       onClick={() => {
         setClicked(true);
 

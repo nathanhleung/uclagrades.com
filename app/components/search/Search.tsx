@@ -32,6 +32,16 @@ const Search = ({ onlyInput = false }: SearchProps) => {
   const [selectedInstructor, setSelectedInstructor] = useState("");
   const instructorQueryInputRef = useRef<HTMLInputElement>(null);
 
+  const [instructorActiveIndex, setInstructorActiveIndex] = useState(0);
+  const [subjectActiveIndex, setSubjectActiveIndex] = useState(0);
+  const [courseActiveIndex, setCourseActiveIndex] = useState(0);
+  const [catalogActiveIndex, setCatalogActiveIndex] = useState(0);
+
+  const instructorResultsRef = useRef<HTMLUListElement>(null);
+  const subjectResultsRef = useRef<HTMLUListElement>(null);
+  const courseResultsRef = useRef<HTMLUListElement>(null);
+  const catalogResultsRef = useRef<HTMLUListElement>(null);
+
   useEffect(() => {
     if (pathname === "/" && searchParams.has("subjectArea")) {
       setIsSearchingByInstructor(false);
@@ -64,6 +74,105 @@ const Search = ({ onlyInput = false }: SearchProps) => {
       });
     }
   }, [pathname, searchParams]);
+
+  useEffect(() => {
+    const ref = isSearchingByInstructor
+      ? selectedInstructor === ""
+        ? instructorResultsRef
+        : courseResultsRef
+      : selectedSubjectArea === ""
+        ? subjectResultsRef
+        : catalogResultsRef;
+
+    const activeIndex = isSearchingByInstructor
+      ? selectedInstructor === ""
+        ? instructorActiveIndex
+        : courseActiveIndex
+      : selectedSubjectArea === ""
+        ? subjectActiveIndex
+        : catalogActiveIndex;
+
+    const setActiveIndex = isSearchingByInstructor
+      ? selectedInstructor === ""
+        ? setInstructorActiveIndex
+        : setCourseActiveIndex
+      : selectedSubjectArea === ""
+        ? setSubjectActiveIndex
+        : setCatalogActiveIndex;
+
+    const handler = (e: KeyboardEvent) => {
+      const element = ref.current?.children[activeIndex] as
+        | HTMLLIElement
+        | undefined;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const next = Math.min(
+          activeIndex + 1,
+          ref.current?.childNodes?.length! - 1,
+        );
+        if (next !== activeIndex) {
+          setActiveIndex(next);
+          requestAnimationFrame(() => {
+            (ref.current?.children[next] as HTMLLIElement).focus();
+            // opacity-75 to distinguish between hover?
+            (
+              ref.current?.children[next - 1]?.firstChild as HTMLLIElement
+            ).classList.remove("opacity-75");
+            (
+              ref.current?.children[next]?.firstChild as HTMLLIElement
+            ).classList.add("opacity-75");
+          });
+        }
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const prev = Math.max(activeIndex - 1, 0);
+        if (prev !== activeIndex) {
+          setActiveIndex(prev);
+          requestAnimationFrame(() => {
+            (ref.current?.children[prev] as HTMLLIElement).focus();
+            (
+              ref.current?.children[prev + 1]?.firstChild as HTMLLIElement
+            ).classList.remove("opacity-75");
+            (
+              ref.current?.children[prev]?.firstChild as HTMLLIElement
+            ).classList.add("opacity-75");
+          });
+        }
+      } else if (e.key === "Enter") {
+        setActiveIndex(0);
+        const maybeLinkElem = element?.querySelector("a");
+        if (maybeLinkElem) {
+          maybeLinkElem?.click();
+        } else {
+          element?.click();
+        }
+      } else {
+        setActiveIndex(0);
+
+        requestAnimationFrame(() => {
+          if (ref.current?.children[0]) {
+            Array.from(ref.current.children).forEach((child) => {
+              (child.firstChild as HTMLElement)?.classList.remove("opacity-75");
+            });
+            (ref.current.children[0].firstChild as HTMLElement)?.classList.add(
+              "opacity-75",
+            );
+          }
+        });
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [
+    instructorActiveIndex,
+    isSearchingByInstructor,
+    courseActiveIndex,
+    selectedInstructor,
+    selectedSubjectArea,
+    subjectActiveIndex,
+    catalogResultsRef,
+    catalogActiveIndex,
+  ]);
 
   let prompt = "";
   if (isSearchingByInstructor) {
@@ -160,6 +269,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
             type="text"
             ref={catalogNumberQueryInputRef}
             value={catalogNumberQuery}
+            autoFocus
             onChange={(e) => setCatalogNumberQuery(e.target.value)}
             placeholder="Course number"
             onKeyDown={(e) => {
@@ -188,6 +298,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
             <InstructorQueryResults
               query={instructorQuery}
               instructors={instructors}
+              ref={instructorResultsRef}
               onSelectInstructor={(instructor) => {
                 setSelectedInstructor(instructor);
 
@@ -201,6 +312,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
           )}
         {isSearchingByInstructor && selectedInstructor && (
           <CourseQueryResults
+            ref={courseResultsRef}
             courses={Object.keys(instructors[selectedInstructor])
               .map((subjectArea) => {
                 return Object.values(
@@ -218,6 +330,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
             <SubjectAreaQueryResults
               courses={courses}
               query={subjectAreaQuery}
+              ref={subjectResultsRef}
               onSelectSubjectArea={(subjectArea) => {
                 setSelectedSubjectArea(subjectArea);
 
@@ -246,6 +359,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
             courses={courses}
             subjectArea={selectedSubjectArea}
             query={catalogNumberQuery}
+            ref={catalogResultsRef}
           />
         )}
       </div>

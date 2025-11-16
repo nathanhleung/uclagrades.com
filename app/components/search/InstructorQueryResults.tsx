@@ -1,6 +1,7 @@
 import { Response } from "@/app/api/instructors/route";
 import { getSubjectAreaLongName } from "@/app/utils";
 import { QueryResults } from "./QueryResults";
+import { forwardRef, Ref } from "react";
 
 type InstructorQueryResultsProps = {
   instructors: Response;
@@ -16,11 +17,10 @@ type InstructorQueryResultsProps = {
   onSelectInstructor(instructor: string): void;
 };
 
-const InstructorQueryResults = ({
-  instructors,
-  query,
-  onSelectInstructor,
-}: InstructorQueryResultsProps) => {
+const InstructorQueryResults = forwardRef<
+  HTMLUListElement,
+  InstructorQueryResultsProps
+>(({ instructors, query, onSelectInstructor }, ref) => {
   const instructorNames = Object.keys(instructors);
 
   function matchInstructor(query: string) {
@@ -40,7 +40,7 @@ const InstructorQueryResults = ({
         (acc, subjectAreaCourses) => {
           return acc + Object.keys(subjectAreaCourses).length;
         },
-        0,
+        0
       );
 
       return {
@@ -52,9 +52,10 @@ const InstructorQueryResults = ({
 
   return (
     <QueryResults
+      ref={ref}
       data={instructorNames}
       query={query}
-      matcher={matchInstructor}
+      matcher={(query) => matchInstructor(query)}
       onSelectResult={onSelectInstructor}
       noResultsMessage="No professors found matching your query"
       renderResult={(instructorName) => {
@@ -63,7 +64,7 @@ const InstructorQueryResults = ({
           (acc, subjectAreaCourses) => {
             return acc + Object.keys(subjectAreaCourses).length;
           },
-          0,
+          0
         );
 
         return (
@@ -87,6 +88,8 @@ const InstructorQueryResults = ({
       }}
     />
   );
-};
+});
+
+InstructorQueryResults.displayName = "InstructorQueryResults";
 
 export { InstructorQueryResults };
