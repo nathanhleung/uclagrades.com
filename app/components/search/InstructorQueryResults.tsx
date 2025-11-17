@@ -1,7 +1,5 @@
 import { Response } from "@/app/api/instructors/route";
-import { getSubjectAreaLongName } from "@/app/utils";
 import { QueryResults } from "./QueryResults";
-import { forwardRef, Ref } from "react";
 
 type InstructorQueryResultsProps = {
   instructors: Response;
@@ -15,12 +13,18 @@ type InstructorQueryResultsProps = {
    *  from the query results
    */
   onSelectInstructor(instructor: string): void;
+  /**
+   * The index that is currently highlighted in the results list.
+   */
+  activeIndex: number;
 };
 
-const InstructorQueryResults = forwardRef<
-  HTMLUListElement,
-  InstructorQueryResultsProps
->(({ instructors, query, onSelectInstructor }, ref) => {
+const InstructorQueryResults = ({
+  instructors,
+  query,
+  onSelectInstructor,
+  activeIndex,
+}: InstructorQueryResultsProps) => {
   const instructorNames = Object.keys(instructors);
 
   function matchInstructor(query: string) {
@@ -40,7 +44,7 @@ const InstructorQueryResults = forwardRef<
         (acc, subjectAreaCourses) => {
           return acc + Object.keys(subjectAreaCourses).length;
         },
-        0
+        0,
       );
 
       return {
@@ -52,19 +56,19 @@ const InstructorQueryResults = forwardRef<
 
   return (
     <QueryResults
-      ref={ref}
       data={instructorNames}
       query={query}
       matcher={(query) => matchInstructor(query)}
       onSelectResult={onSelectInstructor}
       noResultsMessage="No professors found matching your query"
+      activeIndex={activeIndex}
       renderResult={(instructorName) => {
         const departments = Object.keys(instructors[instructorName]);
         const nCourses = Object.values(instructors[instructorName]).reduce(
           (acc, subjectAreaCourses) => {
             return acc + Object.keys(subjectAreaCourses).length;
           },
-          0
+          0,
         );
 
         return (
@@ -88,8 +92,6 @@ const InstructorQueryResults = forwardRef<
       }}
     />
   );
-});
-
-InstructorQueryResults.displayName = "InstructorQueryResults";
+};
 
 export { InstructorQueryResults };

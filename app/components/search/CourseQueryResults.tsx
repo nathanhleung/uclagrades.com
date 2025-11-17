@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { useState } from "react";
 import { Loading } from "../Loading";
 import { QueryResults } from "./QueryResults";
 import { BaseCourseRow } from "@/app/types";
@@ -25,28 +25,33 @@ type CourseQueryResultsProps = {
     matches: boolean;
     score: number;
   };
+  /**
+   * The index that is currently highlighted in the results list.
+   */
+  activeIndex: number;
 };
 
-const CourseQueryResults = forwardRef<
-  HTMLUListElement,
-  CourseQueryResultsProps
->(({ courses, query, queryParams, matcher }, ref) => {
+const CourseQueryResults = ({
+  courses,
+  query,
+  queryParams,
+  matcher,
+  activeIndex,
+}: CourseQueryResultsProps) => {
   return (
     <QueryResults
-      ref={ref}
       data={courses}
       query={query}
       matcher={matcher}
       keyExtractor={(it) => it.catalogNumber}
       noResultsMessage="No courses found matching your query"
+      activeIndex={activeIndex}
       renderResult={(row) => {
         return <Result row={row} queryParams={queryParams} />;
       }}
     />
   );
-});
-
-CourseQueryResults.displayName = "CourseQueryResults";
+};
 
 type ResultProps = {
   row: BaseCourseRow & {
