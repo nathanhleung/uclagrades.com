@@ -77,7 +77,7 @@ function QueryResults<T>({
             <div
               className={classNames(
                 "hover:opacity-50",
-                index === activeIndex && "opacity-75",
+                index === activeIndex && "sm:opacity-75",
               )}
             >
               {renderResult(datum)}
