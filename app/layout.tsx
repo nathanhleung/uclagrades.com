@@ -28,7 +28,14 @@ export default function RootLayout({
         <div className="w-full py-2 bg-green-500 select-none">
           <Marquee autoFill pauseOnHover speed={20}>
             <p className="px-12 uppercase font-bold">
-              🎉 2024–25 grade distributions just dropped 🎉
+              🚦Help make Westwood Blvd safer:{" "}
+              <a
+                href="https://winstli.com/westwood?utm_source=uclagrades.com"
+                className="underline"
+              >
+                Show Your Support
+              </a>{" "}
+              🚦
             </p>
           </Marquee>
         </div>
