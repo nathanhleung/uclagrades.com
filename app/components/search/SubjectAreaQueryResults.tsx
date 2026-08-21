@@ -1,5 +1,7 @@
 import { Response } from "@/app/api/courses/route";
 import { getSubjectAreaLongName } from "@/app/utils";
+import Fuse from "fuse.js";
+import { useMemo } from "react";
 import { QueryResults } from "./QueryResults";
 
 function getSubjectAreaAliases(subjectArea: string) {
@@ -11,6 +13,7 @@ function getSubjectAreaAliases(subjectArea: string) {
       "AM IND": ["AIS"],
       "ART&ARC": ["Art and Architecture", "AA"],
       "ASIA AM": ["AA", "AAS"],
+      "BIOL CH": ["Biochem", "Bio Chem"],
       "C&EE": ["CEE"],
       "C&EE ST": ["CEE", "CEES"],
       "C&S BIO": ["CSB", "CSBIO", "CS BIO"],
@@ -30,6 +33,7 @@ function getSubjectAreaAliases(subjectArea: string) {
       "INF STD": ["IS"],
       "INTL DV": ["IDS"],
       "ISLM ST": ["IS"],
+      LIFESCI: ["LS"],
       "M E STD": ["MES"],
       "MAT SCI": ["MATSCI"],
       "MC&IP": ["MCIP"],
@@ -40,6 +44,12 @@ function getSubjectAreaAliases(subjectArea: string) {
     }[subjectArea] ?? []
   );
 }
+
+type SearchItem = {
+  subjectArea: string;
+  longName: string;
+  aliases: string[];
+};
 
 type SubjectAreaQueryResultsProps = {
   courses: Response;
@@ -66,17 +76,47 @@ const SubjectAreaQueryResults = ({
   activeIndex,
 }: SubjectAreaQueryResultsProps) => {
   const subjectAreas = Object.keys(courses);
+  const searchItems = useMemo<SearchItem[]>(
+    () =>
+      Object.keys(courses).map((subjectArea) => ({
+        subjectArea,
+        longName: getSubjectAreaLongName(subjectArea),
+        aliases: getSubjectAreaAliases(subjectArea),
+      })),
+    [courses],
+  );
+
+  const fuse = useMemo(
+    () =>
+      new Fuse(searchItems, {
+        keys: [
+          { name: "subjectArea", weight: 0.4 },
+          { name: "longName", weight: 0.4 },
+          { name: "aliases", weight: 0.2 },
+        ],
+        threshold: 0.4,
+        includeScore: true,
+        isCaseSensitive: false,
+        minMatchCharLength: 1,
+        distance: 30,
+        ignoreLocation: false,
+      }),
+    [searchItems],
+  );
+
+  const fuseResultsMap = useMemo<Map<string, number>>(() => {
+    const map = new Map<string, number>();
+    if (query.trim() === "") return map;
+    const results = fuse.search(query);
+    for (const result of results) {
+      map.set(result.item.subjectArea, result.score ?? 1);
+    }
+    return map;
+  }, [query, fuse]);
 
   /**
    * Given a query, returns a function which checks whether a
    * `subjectArea` (short form) could match the `query`.
-   *
-   * TODO(nathanhleung):
-   * - take into account edit distance?
-   * - rank results somehow, e.g. "com sci" should be first result
-   *   for "cs", not "classics"
-   * - stream results, since the last check (nested array) could be expensive?
-   * - maybe even just sort by number of courses available
    *
    * @param query the search query
    * @returns a matcher function which accepts a `subjectArea` and
@@ -93,16 +133,17 @@ const SubjectAreaQueryResults = ({
     }
 
     return (subjectArea: string) => {
-      const matches =
-        subjectArea.toLowerCase().indexOf(normalizedQuery) !== -1 ||
-        getSubjectAreaLongName(subjectArea)
-          .toLowerCase()
-          .indexOf(normalizedQuery) !== -1 ||
-        getSubjectAreaAliases(subjectArea).some(
-          (alias) => alias.toLowerCase().indexOf(normalizedQuery) !== -1,
-        );
+      const fuseScore = fuseResultsMap.get(subjectArea);
+      const matches = fuseScore !== undefined;
 
+      // Base score: number of courses in this department
       let score = Object.entries(courses[subjectArea]).length;
+
+      if (matches) {
+        // Fuse is 0 -> worst, 1 -> best.
+        // (1 - fuseScore) is to match the old way of higher = better
+        score += (1 - fuseScore) * 500;
+      }
 
       if (
         query.toLowerCase() === "cs" &&
