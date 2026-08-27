@@ -200,6 +200,15 @@ export default function About() {
             >
               Summer 2024–Spring 2025
             </a>
+            ,{" "}
+            <a
+              href="https://docs.google.com/spreadsheets/d/1-ZMT9CKEAaAIumMGR-okwpfUn4ngYbbehWF-z_hjdnA/edit?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-uclaBlue hover:opacity-50"
+            >
+              Summer 2025–Fall 2025
+            </a>
           </p>
           <a
             href="https://docs.google.com/spreadsheets/u/1/d/1kF7eK8Iyyv_LnE2IY9vg2VEuDuoYi5qO/edit?usp=sharing&ouid=105052985987772221837&rtpof=true&sd=true"

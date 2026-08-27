@@ -25,18 +25,10 @@ export default function RootLayout({
         <GoogleAnalytics />
       </head>
       <body className="flex flex-col min-h-screen border-b-uclaBlue border-b-[12px]">
-        <div className="w-full py-2 bg-[#ff6600] select-none">
+        <div className="w-full py-2 bg-uclaGold select-none">
           <Marquee autoFill pauseOnHover speed={20}>
             <p className="px-12 uppercase font-bold">
-              🚀 We are now backed by Y Combinator:{" "}
-              <a
-                href="https://www.linkedin.com/posts/activity-7439351142410670082-adcp"
-                target="_blank"
-                className="underline"
-              >
-                Please Comment a Rocket Emoji
-              </a>{" "}
-              🚀
+              🌞 Summer and Fall 2025 Grade Distributions Now Available 🌞
             </p>
           </Marquee>
         </div>
