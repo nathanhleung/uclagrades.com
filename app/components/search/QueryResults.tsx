@@ -94,7 +94,7 @@ function QueryResults<T>({
                 className="text-uclaBlue hover:opacity-50"
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfxHpdeTTvFzX4slKx-KGKgvqZM3GfABXIlHcuBHXiKhLhpwQ/viewform?usp=sf_link"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform?usp=sf_link"
               >
                 Report missing data
               </a>

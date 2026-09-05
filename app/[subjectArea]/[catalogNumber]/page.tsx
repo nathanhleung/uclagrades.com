@@ -87,7 +87,7 @@ export default function Course({
                 className="text-md font-bold text-white border-white border-2 hover:opacity-50 p-4 rounded"
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfxHpdeTTvFzX4slKx-KGKgvqZM3GfABXIlHcuBHXiKhLhpwQ/viewform?usp=sf_link"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform?usp=sf_link"
               >
                 Report missing data
               </a>

@@ -56,7 +56,7 @@ export default function Shoutouts() {
             If you&apos;re on the list above and you&apos;d like a link added to
             your name, please{" "}
             <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSfxHpdeTTvFzX4slKx-KGKgvqZM3GfABXIlHcuBHXiKhLhpwQ/viewform?usp=sf_link"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform?usp=sf_link"
               className="text-uclaBlue hover:opacity-50"
               target="_blank"
               rel="noopener noreferrer"

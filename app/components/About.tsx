@@ -90,7 +90,7 @@ const About = () => {
       ; contributions are welcome and appreciated. Questions, comments, bug
       reports, and feature requests are welcome{" "}
       <a
-        href="https://docs.google.com/forms/d/e/1FAIpQLSfxHpdeTTvFzX4slKx-KGKgvqZM3GfABXIlHcuBHXiKhLhpwQ/viewform"
+        href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform"
         target="_blank"
         rel="noopener noreferrer"
         className="text-uclaBlue hover:opacity-50"
