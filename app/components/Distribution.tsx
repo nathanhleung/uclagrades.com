@@ -159,7 +159,9 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
               />
             </div>
             <div className="flex-1">
-              <label className="block mb-1 text-sm font-bold">Term</label>
+              <label className="block mb-1 text-sm font-bold">
+                Academic Term
+              </label>
               <Select
                 value={selectedTerm}
                 getLabel={getTermLongName}

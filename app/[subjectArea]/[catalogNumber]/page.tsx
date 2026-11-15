@@ -1,27 +1,54 @@
-import { CourseTitle } from "@/app/components/CourseTitle";
 import { Distribution } from "@/app/components/Distribution";
 import { ShareCourseButton } from "@/app/components/ShareCourseButton";
-import { Metadata } from "next";
+import subjectIndexJson from "@/app/generated/subject-index.json";
+import type { CourseRow } from "@/app/types";
+import { compareTerms, getTermLongName } from "@/app/utils";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{ subjectArea: string; catalogNumber: string }>;
 };
 
+const subjectIndex: Record<
+  string,
+  Record<string, CourseRow[]>
+> = subjectIndexJson;
+
+export function generateStaticParams() {
+  return Object.entries(subjectIndex).flatMap(([subjectArea, courses]) =>
+    Object.keys(courses).map((catalogNumber) => ({
+      subjectArea,
+      catalogNumber,
+    })),
+  );
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { subjectArea, catalogNumber } = await params;
+  const course = getCourseFromParams(await params);
+  const title = `${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle}`;
+  const description = `Explore UCLA grade distributions for ${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle}. Compare grades by instructor and term. Available terms: ${course.terms[0]}${course.terms.length > 1 ? ` through ${course.terms[course.terms.length - 1]}` : ""}.`;
 
   return {
-    title: `${decodeURIComponent(subjectArea)} ${decodeURIComponent(
-      catalogNumber,
-    )}`,
+    title,
+    description,
+    alternates: { canonical: course.path },
+    openGraph: {
+      title,
+      description,
+      url: course.path,
+      siteName: "UCLA Grade Distributions",
+      type: "website",
+    },
+    twitter: { card: "summary", title, description },
   };
 }
 
 export default async function Course({ params }: Props) {
-  const { subjectArea: rawSubjectArea, catalogNumber: rawCatalogNumber } =
-    await params;
-  const subjectArea = decodeURIComponent(rawSubjectArea);
-  const catalogNumber = decodeURIComponent(rawCatalogNumber);
+  const { subjectArea, catalogNumber, courseTitle, instructors, terms, path } =
+    getCourseFromParams(await params);
+  const subjectPath = `/?subjectArea=${encodeURIComponent(subjectArea)}`;
 
   return (
     <main className="flex flex-col w-full">
@@ -36,15 +63,12 @@ export default async function Course({ params }: Props) {
                 <span>/</span>
                 <a
                   className="text-uclaBlue hover:opacity-50"
-                  href={`/?subjectArea=${rawSubjectArea}`}
+                  href={subjectPath}
                 >
                   {subjectArea}
                 </a>
                 <span>/</span>
-                <a
-                  className="text-uclaBlue hover:opacity-50"
-                  href={`/${rawSubjectArea}/${rawCatalogNumber}`}
-                >
+                <a className="text-uclaBlue hover:opacity-50" href={path}>
                   {catalogNumber}
                 </a>
               </div>
@@ -55,12 +79,7 @@ export default async function Course({ params }: Props) {
                   catalogNumber={catalogNumber}
                 />
               </h1>
-              <h2 className="flex-1 text-2xl">
-                <CourseTitle
-                  subjectArea={subjectArea}
-                  catalogNumber={catalogNumber}
-                />
-              </h2>
+              <h2 className="flex-1 text-2xl">{courseTitle}</h2>
             </div>
           </div>
         </div>
@@ -75,7 +94,7 @@ export default async function Course({ params }: Props) {
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 mt-8">
               <a
                 className="text-md font-bold text-white border-white border-2 hover:opacity-50 p-4 rounded"
-                href={`/?subjectArea=${rawSubjectArea}`}
+                href={subjectPath}
               >
                 View more {subjectArea} courses
               </a>
@@ -88,9 +107,150 @@ export default async function Course({ params }: Props) {
                 Report missing data
               </a>
             </div>
+            <div className="w-full min-w-0 text-left text-xs">
+              {instructors.length > 0 && (
+                <>
+                  <div className="mt-8" role="region" tabIndex={0}>
+                    <table className="w-full min-w-[28rem] text-left">
+                      <thead className="border-b border-white/30">
+                        <tr>
+                          <th scope="col" className="py-2 pr-4 font-medium">
+                            Instructor
+                          </th>
+                          <th scope="col" className="py-2 pr-4 font-medium">
+                            Latest Data
+                          </th>
+                          <th
+                            scope="col"
+                            className="py-2 pr-4 text-right font-medium"
+                          >
+                            Latest Grades Count
+                          </th>
+                          <th
+                            scope="col"
+                            className="py-2 text-right font-medium"
+                          >
+                            A-range %
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {instructors.map((instructor) => (
+                          <tr
+                            key={instructor.name}
+                            className="border-b border-white/20"
+                          >
+                            <th scope="row" className="py-3 pr-4 font-normal">
+                              <Link
+                                className="underline underline-offset-4 hover:opacity-80"
+                                href={`${path}?instructor=${encodeURIComponent(instructor.name)}`}
+                                scroll={false}
+                                prefetch={false}
+                              >
+                                {instructor.displayName}
+                              </Link>
+                            </th>
+                            <td className="whitespace-nowrap py-3 pr-4">
+                              {getTermLongName(instructor.term)}
+                            </td>
+                            <td className="py-3 pr-4 text-right tabular-nums">
+                              {instructor.letterGradeCount}
+                            </td>
+                            <td className="py-3 text-right tabular-nums">
+                              {instructor.letterGradeCount > 0
+                                ? `${((instructor.aRangeCount / instructor.letterGradeCount) * 100).toFixed(1)}%`
+                                : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="mt-3">
+                    Counts and percentages cover each instructor’s latest
+                    recorded term, combining all sections. A-range includes A+,
+                    A, and A− as a share of recorded letter grades (A+ through
+                    F). Other outcomes, including P/NP and incompletes, are
+                    excluded. Records may be incomplete.
+                  </p>
+                </>
+              )}
+              <dl className="mt-4">
+                <div>
+                  <dt className="font-bold">Available Academic Terms</dt>
+                  <dd>{terms.join(" · ")}</dd>
+                </div>
+              </dl>
+            </div>
           </div>
         </div>
       </div>
     </main>
   );
+}
+
+function getCourseFromParams(params: Awaited<Props["params"]>) {
+  const subjectArea = decodeURIComponent(params.subjectArea).toUpperCase();
+  const catalogNumber = decodeURIComponent(params.catalogNumber).toUpperCase();
+
+  if (!Object.hasOwn(subjectIndex, subjectArea)) {
+    notFound();
+  }
+
+  const courses = subjectIndex[subjectArea];
+  if (!Object.hasOwn(courses, catalogNumber)) {
+    notFound();
+  }
+
+  const rows = courses[catalogNumber];
+  if (!rows?.length) {
+    notFound();
+  }
+
+  const terms = Array.from(new Set(rows.map((row) => row.enrollmentTerm)))
+    .sort(compareTerms)
+    .map(getTermLongName);
+  const latestByInstructor = new Map<
+    string,
+    { term: string; letterGradeCount: number; aRangeCount: number }
+  >();
+  for (const row of rows) {
+    if (!row.instructorName) continue;
+
+    let latest = latestByInstructor.get(row.instructorName);
+    if (!latest || compareTerms(row.enrollmentTerm, latest.term) > 0) {
+      latest = {
+        term: row.enrollmentTerm,
+        letterGradeCount: 0,
+        aRangeCount: 0,
+      };
+      latestByInstructor.set(row.instructorName, latest);
+    }
+    if (row.enrollmentTerm !== latest.term) continue;
+
+    const count = Number(row.gradeCount);
+    if (
+      !/^(?:[ABCD][+-]?|F)$/.test(row.gradeOffered) ||
+      !Number.isFinite(count) ||
+      count < 0
+    ) {
+      continue;
+    }
+    latest.letterGradeCount += count;
+    if (/^A[+-]?$/.test(row.gradeOffered)) latest.aRangeCount += count;
+  }
+  const instructors = Array.from(latestByInstructor, ([name, stats]) => ({
+    name,
+    displayName: name.split(", ").reverse().join(" "),
+    ...stats,
+  })).sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+  return {
+    subjectArea,
+    catalogNumber,
+    courseTitle: rows[0].courseTitle,
+    terms,
+    instructors,
+    path: `/${encodeURIComponent(subjectArea)}/${encodeURIComponent(catalogNumber)}`,
+  };
 }
