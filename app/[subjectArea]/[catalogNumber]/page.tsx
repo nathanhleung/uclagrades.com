@@ -6,6 +6,7 @@ import { compareTerms, getTermLongName } from "@/app/utils";
 import type { Metadata } from "next";
 import { InstructorGradeTable } from "@/app/components/InstructorGradeTable";
 import { notFound } from "next/navigation";
+import { groupBy, last, sumBy, uniq } from "lodash";
 
 type Props = {
   params: Promise<{ subjectArea: string; catalogNumber: string }>;
@@ -137,10 +138,12 @@ export default async function Course({ params }: Props) {
                     />
                   </div>
                   <p className="mt-3">
-                    Counts and percentages cover each instructor’s latest
-                    recorded term, combining all sections. A-range includes A+,
-                    A, and A− as a share of recorded letter grades (A+ through
-                    F). Other outcomes, including P/NP and incompletes, are
+                    A-range % and grade counts cover only each instructor’s
+                    latest recorded term, shown in the &quot;Latest Data
+                    From&quot; column, combining all sections for the course.
+                    A-range % is the share of recorded letter grades (A+ through
+                    F) that are A+, A, or A−. Parentheses show the A-range count
+                    over the total letter-grade count. P/NP and incompletes are
                     excluded. Records may be incomplete.
                   </p>
                 </>
@@ -177,43 +180,41 @@ function getCourseFromParams(params: Awaited<Props["params"]>) {
     notFound();
   }
 
-  const terms = Array.from(new Set(rows.map((row) => row.enrollmentTerm)))
+  const terms = uniq(rows.map((row) => row.enrollmentTerm))
     .sort(compareTerms)
     .map(getTermLongName);
-  const latestByInstructor = new Map<
-    string,
-    { term: string; letterGradeCount: number; aRangeCount: number }
-  >();
-  for (const row of rows) {
-    if (!row.instructorName) continue;
+  const rowsByInstructor = groupBy(
+    rows.filter((row) => row.instructorName),
+    (row) => row.instructorName,
+  );
+  const instructors = Object.entries(rowsByInstructor)
+    .map(([name, instructorRows]) => {
+      const term =
+        last(
+          instructorRows.map((row) => row.enrollmentTerm).sort(compareTerms),
+        ) ?? "";
+      const letterGradeRows = instructorRows.filter(
+        (row) =>
+          row.enrollmentTerm === term &&
+          /^(?:[ABCD][+-]?|F)$/.test(row.gradeOffered) &&
+          Number.isFinite(Number(row.gradeCount)) &&
+          Number(row.gradeCount) >= 0,
+      );
 
-    let latest = latestByInstructor.get(row.instructorName);
-    if (!latest || compareTerms(row.enrollmentTerm, latest.term) > 0) {
-      latest = {
-        term: row.enrollmentTerm,
-        letterGradeCount: 0,
-        aRangeCount: 0,
+      return {
+        name,
+        displayName: name.split(", ").reverse().join(" "),
+        term,
+        letterGradeCount: sumBy(letterGradeRows, (row) =>
+          Number(row.gradeCount),
+        ),
+        aRangeCount: sumBy(
+          letterGradeRows.filter((row) => /^A[+-]?$/.test(row.gradeOffered)),
+          (row) => Number(row.gradeCount),
+        ),
       };
-      latestByInstructor.set(row.instructorName, latest);
-    }
-    if (row.enrollmentTerm !== latest.term) continue;
-
-    const count = Number(row.gradeCount);
-    if (
-      !/^(?:[ABCD][+-]?|F)$/.test(row.gradeOffered) ||
-      !Number.isFinite(count) ||
-      count < 0
-    ) {
-      continue;
-    }
-    latest.letterGradeCount += count;
-    if (/^A[+-]?$/.test(row.gradeOffered)) latest.aRangeCount += count;
-  }
-  const instructors = Array.from(latestByInstructor, ([name, stats]) => ({
-    name,
-    displayName: name.split(", ").reverse().join(" "),
-    ...stats,
-  })).sort((a, b) => a.displayName.localeCompare(b.displayName));
+    })
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   return {
     subjectArea,
