@@ -4,7 +4,7 @@ import subjectIndexJson from "@/app/generated/subject-index.json";
 import type { CourseRow } from "@/app/types";
 import { compareTerms, getTermLongName } from "@/app/utils";
 import type { Metadata } from "next";
-import Link from "next/link";
+import { InstructorGradeTable } from "@/app/components/InstructorGradeTable";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -111,60 +111,10 @@ export default async function Course({ params }: Props) {
               {instructors.length > 0 && (
                 <>
                   <div className="mt-8" role="region" tabIndex={0}>
-                    <table className="w-full min-w-[28rem] text-left">
-                      <thead className="border-b border-white/30">
-                        <tr>
-                          <th scope="col" className="py-2 pr-4 font-medium">
-                            Instructor
-                          </th>
-                          <th scope="col" className="py-2 pr-4 font-medium">
-                            Latest Data
-                          </th>
-                          <th
-                            scope="col"
-                            className="py-2 pr-4 text-right font-medium"
-                          >
-                            Latest Grades Count
-                          </th>
-                          <th
-                            scope="col"
-                            className="py-2 text-right font-medium"
-                          >
-                            A-range %
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {instructors.map((instructor) => (
-                          <tr
-                            key={instructor.name}
-                            className="border-b border-white/20"
-                          >
-                            <th scope="row" className="py-3 pr-4 font-normal">
-                              <Link
-                                className="underline underline-offset-4 hover:opacity-80"
-                                href={`${path}?instructor=${encodeURIComponent(instructor.name)}`}
-                                scroll={false}
-                                prefetch={false}
-                              >
-                                {instructor.displayName}
-                              </Link>
-                            </th>
-                            <td className="whitespace-nowrap py-3 pr-4">
-                              {getTermLongName(instructor.term)}
-                            </td>
-                            <td className="py-3 pr-4 text-right tabular-nums">
-                              {instructor.letterGradeCount}
-                            </td>
-                            <td className="py-3 text-right tabular-nums">
-                              {instructor.letterGradeCount > 0
-                                ? `${((instructor.aRangeCount / instructor.letterGradeCount) * 100).toFixed(1)}%`
-                                : "—"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <InstructorGradeTable
+                      instructors={instructors}
+                      path={path}
+                    />
                   </div>
                   <p className="mt-3">
                     Counts and percentages cover each instructor’s latest
