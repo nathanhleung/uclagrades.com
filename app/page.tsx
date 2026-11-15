@@ -3,18 +3,22 @@ import Link from "next/link";
 
 // Ranked by page views in the supplied analytics report.
 const popularCourses = [
-  ["PHYSICS", "5B"],
-  ["LIFESCI", "7B"],
-  ["PHYSICS", "5A"],
-  ["MATH", "32A"],
-  ["PHYSICS", "1A"],
+  ["CHEM", "14B"],
   ["CHEM", "14BL"],
-  ["PHYSICS", "5C"],
   ["CHEM", "14CL"],
   ["CHEM", "14D"],
+  ["LIFESCI", "7B"],
+  ["LIFESCI", "7C"],
   ["MATH", "31B"],
+  ["MATH", "32A"],
+  ["MATH", "33A"],
+  ["MATH", "115A"],
+  ["MATH", "131A"],
+  ["PHYSICS", "5A"],
+  ["PHYSICS", "5B"],
+  ["PHYSICS", "5C"],
+  ["PHYSICS", "1A"],
   ["STATS", "100B"],
-  ["CHEM", "14B"],
 ];
 
 export default function Home() {
