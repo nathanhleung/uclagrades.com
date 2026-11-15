@@ -6,9 +6,10 @@ import { Navbar } from "./components/Navbar";
 import "./globals.css";
 
 export const metadata = {
+  metadataBase: new URL("https://uclagrades.com"),
   title: {
-    template: "%s | UCLA Grade Distributions 2021-25",
-    default: "UCLA Grade Distributions 2021-25",
+    template: "%s | UCLA Grade Distributions 2021-26",
+    default: "UCLA Grade Distributions 2021-26",
   },
   description:
     "Grade distribution data was sourced through a public records request made under the California Public Records Act. 40+ UCLA students paid $131.25 to obtain these records.",
