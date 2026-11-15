@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { orderBy, uniq } from "lodash";
 import { useState } from "react";
 import { compareTerms, getTermLongName } from "../utils";
 
@@ -22,7 +23,7 @@ export function InstructorGradeTable({
   type SortColumn = "instructor" | "term" | "count" | "aRange";
   const columns: { key: SortColumn; label: string; numeric: boolean }[] = [
     { key: "instructor", label: "Instructor", numeric: false },
-    { key: "term", label: "Latest Data", numeric: false },
+    { key: "term", label: "Latest Data From", numeric: false },
     { key: "count", label: "Latest Grades Count", numeric: true },
     { key: "aRange", label: "A-range %", numeric: true },
   ];
@@ -32,23 +33,32 @@ export function InstructorGradeTable({
   }>({ column: "aRange", descending: true });
   const nextDescending = (column: SortColumn) =>
     column === sortColumn ? !descending : column !== "instructor";
-  const sortedInstructors = [...instructors].sort((a, b) => {
-    const byName = a.displayName.localeCompare(b.displayName);
-    let comparison = byName;
-    if (sortColumn === "term") comparison = compareTerms(a.term, b.term);
-    if (sortColumn === "count")
-      comparison = a.letterGradeCount - b.letterGradeCount;
-    if (sortColumn === "aRange") {
+  // Stable sorting keeps equal values in locale-aware alphabetical order.
+  const instructorsByName = [...instructors].sort((a, b) =>
+    a.displayName.localeCompare(b.displayName),
+  );
+  const terms = uniq(instructors.map((instructor) => instructor.term)).sort(
+    compareTerms,
+  );
+  const sortIteratees: Record<
+    SortColumn,
+    (instructor: InstructorSummary) => number
+  > = {
+    instructor: (instructor) => instructorsByName.indexOf(instructor),
+    term: ({ term }) => terms.indexOf(term),
+    count: ({ letterGradeCount }) => letterGradeCount,
+    aRange: ({ aRangeCount, letterGradeCount }) =>
+      letterGradeCount ? aRangeCount / letterGradeCount : 0,
+  };
+  const sortedInstructors = orderBy(
+    instructorsByName,
+    [
       // Missing percentages stay last in either direction.
-      if (!a.letterGradeCount || !b.letterGradeCount) {
-        if (a.letterGradeCount === b.letterGradeCount) return byName;
-        return a.letterGradeCount ? -1 : 1;
-      }
-      comparison =
-        a.aRangeCount / a.letterGradeCount - b.aRangeCount / b.letterGradeCount;
-    }
-    return comparison * (descending ? -1 : 1) || byName;
-  });
+      ({ letterGradeCount }) => sortColumn === "aRange" && !letterGradeCount,
+      sortIteratees[sortColumn],
+    ],
+    ["asc", descending ? "desc" : "asc"],
+  );
 
   return (
     <table className="w-full min-w-[28rem] text-left">
@@ -124,9 +134,16 @@ export function InstructorGradeTable({
               {instructor.letterGradeCount}
             </td>
             <td className="py-3 text-right tabular-nums">
-              {instructor.letterGradeCount > 0
-                ? `${((instructor.aRangeCount / instructor.letterGradeCount) * 100).toFixed(1)}%`
-                : "—"}
+              {instructor.letterGradeCount > 0 ? (
+                <>
+                  {`${((instructor.aRangeCount / instructor.letterGradeCount) * 100).toFixed(1)}%`}{" "}
+                  <span className="inline-block text-[0.85em] text-white/75">
+                    ({instructor.aRangeCount.toLocaleString("en-US")})
+                  </span>
+                </>
+              ) : (
+                "—"
+              )}
             </td>
           </tr>
         ))}
