@@ -248,9 +248,9 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
           />
           <div className="mt-4 text-left" aria-live="polite">
             <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="flex flex-col text-center rounded-3xl bg-uclaBlue/5 px-3 py-3">
+              <div className="flex flex-col text-left rounded-3xl bg-uclaBlue/5 px-3 py-3">
                 <dt className="text-left text-xs font-bold">Average GPA</dt>
-                <dd className="mt-auto flex min-h-[3.5rem] flex-wrap content-start items-baseline justify-center gap-x-1 pt-2 text-2xl font-bold tabular-nums">
+                <dd className="mt-auto flex flex-wrap items-baseline justify-start gap-x-1 pt-2 text-2xl font-bold tabular-nums">
                   <span className="block leading-8">
                     {averageGpa === null ? "—" : averageGpa.toFixed(2)}
                   </span>
@@ -259,14 +259,14 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                   </span>
                 </dd>
               </div>
-              <div className="flex flex-col text-center rounded-3xl bg-uclaBlue/5 px-3 py-3">
+              <div className="flex flex-col text-left rounded-3xl bg-uclaBlue/5 px-3 py-3">
                 <dt className="text-left text-xs font-bold">
                   Most Common Grade
                 </dt>
-                <dd className="mt-auto flex min-h-[3.5rem] flex-wrap content-start items-baseline justify-center gap-x-1 pt-2 text-2xl font-bold tabular-nums">
+                <dd className="mt-auto flex flex-wrap items-baseline justify-start gap-x-1 pt-2 text-2xl font-bold tabular-nums">
                   <span className="block leading-8">
                     {mostCommonGrades.length > 0
-                      ? mostCommonGrades.join(" / ")
+                      ? mostCommonGrades.join(", ")
                       : "—"}
                   </span>
                   <span className="whitespace-nowrap text-xs leading-4 font-normal text-gray-600">
@@ -276,15 +276,15 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                         {totalGradeCountForInstructorNameForTerm.toLocaleString(
                           "en-US",
                         )}
-                        )
+                        {mostCommonGrades.length > 1 ? ", tied" : ""})
                       </>
                     )}
                   </span>
                 </dd>
               </div>
-              <div className="flex flex-col text-center rounded-3xl bg-uclaBlue/5 px-3 py-3">
+              <div className="flex flex-col text-left rounded-3xl bg-uclaBlue/5 px-3 py-3">
                 <dt className="text-left text-xs font-bold">A-range</dt>
-                <dd className="mt-auto flex min-h-[3.5rem] flex-wrap content-start items-baseline justify-center gap-x-1 pt-2 text-2xl font-bold tabular-nums">
+                <dd className="mt-auto flex flex-wrap items-baseline justify-start gap-x-1 pt-2 text-2xl font-bold tabular-nums">
                   <span className="block leading-8">
                     {letterGradeCount > 0
                       ? `${((aRangeCount / letterGradeCount) * 100).toFixed(1)}%`
@@ -300,20 +300,27 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                   </span>
                 </dd>
               </div>
-              <div className="flex flex-col text-center rounded-3xl bg-uclaBlue/5 px-3 py-3">
+              <div className="flex flex-col text-left rounded-3xl bg-uclaBlue/5 px-3 py-3">
                 <dt className="text-left text-xs font-bold">Recorded Grades</dt>
-                <dd className="mt-auto flex min-h-[3.5rem] flex-wrap content-start items-baseline justify-center gap-x-1 pt-2 text-2xl font-bold tabular-nums">
+                <dd className="mt-auto flex flex-wrap items-baseline justify-start gap-x-1 pt-2 text-2xl font-bold tabular-nums">
                   <span className="block leading-8">
                     {totalGradeCountForInstructorNameForTerm.toLocaleString(
                       "en-US",
                     )}
                   </span>
+                  <span className="whitespace-nowrap text-xs leading-4 font-normal text-gray-600">
+                    (
+                    {(
+                      totalGradeCountForInstructorNameForTerm - letterGradeCount
+                    ).toLocaleString("en-US")}{" "}
+                    non-letter)
+                  </span>
                 </dd>
               </div>
             </dl>
           </div>
-          <p className="mt-2 text-xs text-gray-600 text-left">
-            Average GPA calculation uses{" "}
+          <p className="mt-4 text-xs text-gray-600 text-left">
+            &quot;Average GPA&quot; calculation uses{" "}
             {letterGradeCount.toLocaleString("en-US")} recorded letter grades
             (A+ through F), weighted by grade count on the{" "}
             <a
@@ -325,10 +332,13 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
               UCLA scale
             </a>
             . A+ and A both count as 4.0. Other outcomes, including P/NP and
-            incompletes, count toward recorded grades but are excluded from GPA.{" "}
-            A-range includes A+, A, and A−; parentheses show the A-range count
-            over the total letter-grade count. Most common grade shows its count
-            over all recorded grades; tied grades each have the shown count.
+            incompletes, count toward recorded grades but are excluded from
+            &quot;Average GPA&quot;.
+            <br />
+            <br />
+            &quot;Most Common Grade&quot; shows its count over all recorded
+            grades. &quot;A-range&quot; includes A+, A, and A−; parentheses show
+            the A-range count over the total letter-grade count.
           </p>
         </div>
       ) : (
