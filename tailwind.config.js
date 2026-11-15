@@ -10,7 +10,8 @@ module.exports = {
       colors: {
         uclaGold: "rgb(255, 209, 0)",
         uclaBlue: "rgb(39, 116, 174)",
-        uclaDarkerBlue: "rgba(0, 85, 135)",
+        uclaDarkerBlue: "rgb(0, 85, 135)",
+        uclaLighterBlue: "rgb(139, 184, 232)",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
