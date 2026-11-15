@@ -322,8 +322,9 @@ const Search = ({ onlyInput = false }: SearchProps) => {
         )}
       </div>
       <div className="flex items-center justify-center mt-8">
-        <span
-          className="text-xs underline hover:opacity-50 cursor-pointer select-none text-white"
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
           onClick={() => {
             if (pathname === "/") {
               const url = new URL(window.location.href);
@@ -350,7 +351,7 @@ const Search = ({ onlyInput = false }: SearchProps) => {
         >
           Search by {isSearchingByInstructor ? "department" : "professor"}{" "}
           instead
-        </span>
+        </button>
       </div>
     </div>
   );

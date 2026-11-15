@@ -91,15 +91,15 @@ export default async function Course({ params }: Props) {
                 catalogNumber={catalogNumber}
               />
             </div>
-            <div className="flex flex-col md:flex-row gap-6 md:gap-12 mt-8">
+            <div className="flex flex-col md:flex-row gap-2 mt-8">
               <a
-                className="text-md font-bold text-white border-white border-2 hover:opacity-50 p-4 rounded"
+                className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
                 href={subjectPath}
               >
                 View more {subjectArea} courses
               </a>
               <a
-                className="text-md font-bold text-white border-white border-2 hover:opacity-50 p-4 rounded"
+                className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
                 target="_blank"
                 rel="noopener noreferrer"
                 href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform?usp=sf_link"

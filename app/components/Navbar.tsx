@@ -41,24 +41,27 @@ const Navbar = () => {
             Contact
           </a>
           {pathname !== "/" && (
-            <div className="rounded pl-4 pr-8 py-1 bg-white cursor-text hidden lg:block hover:shadow-xl md:min-w-[250px]">
-              <div
-                className="flex items-center font-bold text-black text-sm opacity-50 gap-4"
-                onClick={() => {
-                  setSearchModalOpen(true);
-                }}
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={searchModalOpen}
+              className="hidden lg:inline-flex items-center justify-center gap-3 rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
+              onClick={() => {
+                setSearchModalOpen(true);
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="1em"
+                viewBox="0 0 512 512"
+                className="fill-current"
+                aria-hidden="true"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="1em"
-                  viewBox="0 0 512 512"
-                >
-                  {/* <!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --> */}
-                  <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
-                </svg>
-                <p>Search for classes</p>
-              </div>
-            </div>
+                {/* <!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --> */}
+                <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+              </svg>
+              <span>Search for classes</span>
+            </button>
           )}
         </div>
         <div>
@@ -82,14 +85,15 @@ const Navbar = () => {
       >
         <Search onlyInput />
         <div className="mt-16 flex justify-center">
-          <a
-            className="text-md font-bold text-white border-white border-2 hover:opacity-50 p-4 rounded cursor-pointer"
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
             onClick={() => {
               setSearchModalOpen(false);
             }}
           >
             Close
-          </a>
+          </button>
         </div>
       </Modal>
     </>
