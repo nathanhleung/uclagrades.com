@@ -1,6 +1,22 @@
 import { Search } from "./components/search";
 import Link from "next/link";
 
+// Ranked by page views in the supplied analytics report.
+const popularCourses = [
+  ["PHYSICS", "5B"],
+  ["LIFESCI", "7B"],
+  ["PHYSICS", "5A"],
+  ["MATH", "32A"],
+  ["PHYSICS", "1A"],
+  ["CHEM", "14BL"],
+  ["PHYSICS", "5C"],
+  ["CHEM", "14CL"],
+  ["CHEM", "14D"],
+  ["MATH", "31B"],
+  ["STATS", "100B"],
+  ["CHEM", "14B"],
+];
+
 export default function Home() {
   return (
     <main className="flex flex-col w-full">
@@ -36,8 +52,35 @@ export default function Home() {
       </div>
 
       <div className="w-full h-auto flex flex-1 justify-center p-6 sm:p-8 md:p-12 text-white bg-uclaBlue">
-        <div className="flex w-full md:w-[65%] lg:w-[60%] xl:w-[50%] md:mx-auto items-center">
+        <div className="flex flex-col justify-center gap-8 w-full md:w-[65%] lg:w-[60%] xl:w-[50%] md:mx-auto">
           <Search />
+        </div>
+      </div>
+      <div className="w-full h-auto flex flex-1 justify-center p-6 sm:p-8 md:p-12 text-white bg-uclaLighterBlue">
+        <div className="flex flex-col justify-center gap-8 w-full md:w-[65%] lg:w-[60%] xl:w-[50%] md:mx-auto">
+          <nav
+            aria-labelledby="popular-courses-heading"
+            className="w-full flex gap-2 flex-col"
+          >
+            <h2
+              id="popular-courses-heading"
+              className="mb-3 text-center text-lg font-bold"
+            >
+              or, jump to popular courses
+            </h2>
+            <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-2">
+              {popularCourses.map(([subjectArea, catalogNumber]) => (
+                <li key={`${subjectArea}-${catalogNumber}`}>
+                  <Link
+                    href={`/${encodeURIComponent(subjectArea)}/${encodeURIComponent(catalogNumber)}`}
+                    className="flex items-center justify-center rounded border border-white/30 px-2 py-3 text-center text-sm font-semibold whitespace-nowrap transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
+                  >
+                    {subjectArea} {catalogNumber}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </main>
