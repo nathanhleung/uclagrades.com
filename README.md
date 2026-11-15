@@ -19,6 +19,8 @@ This website, brought to you by [40+ UCLA students](https://uclagrades.com/shout
 - Spring 2025
 - Summer 2025
 - Fall 2025
+- Winter 2026
+- Spring 2026
 
 This site is not affiliated with UCLA. Grade distribution data from 2021–2022 was
 sourced through a February 2023 [public records request](https://drive.google.com/file/d/1l-R7LN9jOFUic3b4WTk4WxfDSjGNpuVw/view?usp=sharing) made under the California Public Records Act. [40+](https://uclagrades.com/shoutouts) UCLA students [paid $131.25](https://drive.google.com/file/d/14LuoYaDCPUmts_6igA8rC3AVI2Ntyvqc/view?usp=sharing) to obtain these records. Grade distribution data from 2022–2023 was
@@ -31,6 +33,7 @@ UCLA students can download the data on Google Drive (log into your UCLA Google A
 - [Summer 2023–Spring 2024](https://docs.google.com/spreadsheets/d/13HGfffKLACEfCcVGNshu8Y_dfNip2kA2/edit?usp=sharing)
 - [Summer 2024–Spring 2025](https://docs.google.com/spreadsheets/d/1BIHfuZpi9SvhuBXdI2fHPGIILpj1sAAk/edit?usp=sharing)
 - [Summer 2025–Fall 2025](https://docs.google.com/spreadsheets/d/1-ZMT9CKEAaAIumMGR-okwpfUn4ngYbbehWF-z_hjdnA/edit?usp=sharing)
+- [Winter 2026–Spring 2026](https://docs.google.com/spreadsheets/d/136nki5lbqdot85BFFX7VajEcwdd-GScU/edit?usp=sharing)
 
 This repository contains the full source code for the website; contributions are welcome and appreciated.
 

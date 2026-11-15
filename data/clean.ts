@@ -73,6 +73,7 @@ async function parseAndIndexGrades(): Promise<
     "grades-231-24s.csv",
     "grades-241-25s.csv",
     "grades-251-25f.csv",
+    "grades-26w-26s.csv",
   ].map(
     (filename) => () =>
       fs.createReadStream(path.resolve(CSV_DATA_DIR, filename)),

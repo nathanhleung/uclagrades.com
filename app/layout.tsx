@@ -25,10 +25,10 @@ export default function RootLayout({
         <GoogleAnalytics />
       </head>
       <body className="flex flex-col min-h-screen border-b-uclaBlue border-b-[12px]">
-        <div className="w-full py-2 bg-uclaGold select-none">
+        <div className="w-full py-2 bg-[#8BB8E8] select-none">
           <Marquee autoFill pauseOnHover speed={20}>
             <p className="px-12 uppercase font-bold">
-              🌞 Summer and Fall 2025 Grade Distributions Now Available 🌞
+              ❄️ Winter and Spring 2026 Grade Distributions Now Available ❄️
             </p>
           </Marquee>
         </div>

@@ -26,6 +26,8 @@ export default function Home() {
             "Spring 2025",
             "Summer 2025",
             "Fall 2025",
+            "Winter 2026",
+            "Spring 2026",
           ]
             .toReversed()
             .join(" · ")}

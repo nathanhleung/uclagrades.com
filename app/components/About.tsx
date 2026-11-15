@@ -76,6 +76,15 @@ const About = () => {
       >
         Summer 2025–Fall 2025
       </a>
+      ,{" "}
+      <a
+        href="https://docs.google.com/spreadsheets/d/136nki5lbqdot85BFFX7VajEcwdd-GScU/edit?usp=sharing"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-uclaBlue hover:opacity-50"
+      >
+        Winter 2026–Spring 2026
+      </a>
       <br />
       <br />
       Source code for this site is{" "}
