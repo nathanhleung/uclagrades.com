@@ -25,10 +25,17 @@ export default function Home() {
   return (
     <main className="flex flex-col w-full">
       <div className="flex flex-col text-center justify-center p-6 sm:p-12 md:p-16 md:w-[75%] lg:w-[55%] md:mx-auto">
-        <h1 className="text-4xl mb-4 text-uclaDarkerBlue hover:opacity-50 font-bold">
-          <Link href="/">UCLA Grade Distributions</Link>
-        </h1>
-        <h2 className="text-lg text-gray-400">
+        <div className="mb-4">
+          <h2 className="inline text-4xl text-uclaDarkerBlue hover:opacity-50 font-bold">
+            <Link href="/">uclagrades.com</Link>
+          </h2>{" "}
+          <h1 className="ml-1 inline text-xl sm:text-2xl font-medium leading-snug text-gray-700">
+            is where to find the latest UCLA grade distributions — available by
+            course, professor, and quarter.
+          </h1>
+        </div>
+        <p className="text-sm text-gray-400">
+          Data available from{" "}
           {[
             "Fall 2021",
             "Winter 2022",
@@ -51,8 +58,8 @@ export default function Home() {
             "Spring 2026",
           ]
             .toReversed()
-            .join(" · ")}
-        </h2>
+            .join(", ")}
+        </p>
       </div>
 
       <div className="w-full h-auto flex flex-1 justify-center p-6 sm:p-8 md:p-12 text-white bg-uclaBlue">
