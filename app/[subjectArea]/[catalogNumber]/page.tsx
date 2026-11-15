@@ -49,9 +49,29 @@ export default async function Course({ params }: Props) {
   const { subjectArea, catalogNumber, courseTitle, instructors, terms, path } =
     getCourseFromParams(await params);
   const subjectPath = `/?subjectArea=${encodeURIComponent(subjectArea)}`;
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { name: "Home", path: "/" },
+      { name: subjectArea, path: subjectPath },
+      { name: catalogNumber, path },
+    ].map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: new URL(item.path, "https://uclagrades.com").href,
+    })),
+  };
 
   return (
     <main className="flex flex-col w-full">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumb).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="text-center">
         <div className="flex items-center justify-between p-6 sm:p-8 md:p-12">
           <div className="flex flex-1 justify-center items-center">
