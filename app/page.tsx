@@ -1,11 +1,12 @@
 import { Search } from "./components/search";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <main className="flex flex-col w-full">
       <div className="flex flex-col text-center justify-center p-6 sm:p-12 md:p-16 md:w-[75%] lg:w-[55%] md:mx-auto">
         <h1 className="text-4xl mb-4 text-uclaDarkerBlue hover:opacity-50 font-bold">
-          <a href="/">UCLA Grade Distributions</a>
+          <Link href="/">UCLA Grade Distributions</Link>
         </h1>
         <h2 className="text-lg text-gray-400">
           {[

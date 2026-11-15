@@ -12,9 +12,11 @@ const subjectIndex = untypedSubjectIndex as SubjectIndex;
 
 export async function GET(
   _: Request,
-  { params }: { params: { subjectArea: string; catalogNumber: string } },
+  {
+    params,
+  }: { params: Promise<{ subjectArea: string; catalogNumber: string }> },
 ) {
-  const { subjectArea, catalogNumber } = params;
+  const { subjectArea, catalogNumber } = await params;
 
   return NextResponse.json(
     subjectIndex[subjectArea.toUpperCase()][catalogNumber.toUpperCase()],

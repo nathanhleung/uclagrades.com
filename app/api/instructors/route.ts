@@ -8,6 +8,8 @@ type InstructorIndex = {
 
 const instructorIndex = untypedInstructorIndex as InstructorIndex;
 
+export const dynamic = "force-static";
+
 type CoursesByInstructor = {
   [instructor: string]: {
     [subjectArea: string]: {

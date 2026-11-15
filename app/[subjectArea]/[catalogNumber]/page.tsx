@@ -4,11 +4,11 @@ import { ShareCourseButton } from "@/app/components/ShareCourseButton";
 import { Metadata } from "next";
 
 type Props = {
-  params: { subjectArea: string; catalogNumber: string };
+  params: Promise<{ subjectArea: string; catalogNumber: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { subjectArea, catalogNumber } = params;
+  const { subjectArea, catalogNumber } = await params;
 
   return {
     title: `${decodeURIComponent(subjectArea)} ${decodeURIComponent(
@@ -17,13 +17,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function Course({
-  params,
-}: {
-  params: { subjectArea: string; catalogNumber: string };
-}) {
+export default async function Course({ params }: Props) {
   const { subjectArea: rawSubjectArea, catalogNumber: rawCatalogNumber } =
-    params;
+    await params;
   const subjectArea = decodeURIComponent(rawSubjectArea);
   const catalogNumber = decodeURIComponent(rawCatalogNumber);
 

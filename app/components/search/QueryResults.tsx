@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, type JSX } from "react";
 
 type QueryResultsProps<T> = {
   /** The search query */
@@ -46,7 +46,7 @@ function QueryResults<T>({
   noResultsMessage = "No results",
   activeIndex,
 }: QueryResultsProps<T>) {
-  const matcherForQuery = useCallback(matcher(query), [query]);
+  const matcherForQuery = useMemo(() => matcher(query), [matcher, query]);
 
   const predicate = useCallback(
     (datum: T) => {

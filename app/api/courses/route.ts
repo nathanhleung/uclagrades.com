@@ -11,6 +11,8 @@ type SubjectIndex = {
 
 const subjectIndex = untypedSubjectIndex as SubjectIndex;
 
+export const dynamic = "force-static";
+
 type CatalogNumbersBySubjectArea = {
   [subjectArea: string]: {
     [catalogNumber: string]: BaseCourseRow & {

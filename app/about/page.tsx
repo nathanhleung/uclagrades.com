@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function About() {
   return (
@@ -93,9 +94,9 @@ export default function About() {
             />
           </a>
           <p>
-            <a className="text-uclaBlue hover:opacity-50" href="/shoutouts">
+            <Link className="text-uclaBlue hover:opacity-50" href="/shoutouts">
               40+ UCLA students
-            </a>{" "}
+            </Link>{" "}
             crowdfunded $130 and we sent a check to UCLA Information Practices.
           </p>
           <a
