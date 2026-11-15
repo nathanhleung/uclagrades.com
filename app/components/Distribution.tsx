@@ -1,11 +1,10 @@
 "use client";
 
 import "chart.js/auto";
-import { groupBy, last, mapValues, maxBy, size, sum, sumBy } from "lodash";
-import { compose, get } from "lodash/fp";
+import { groupBy, last, mapValues, maxBy, sumBy } from "lodash";
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import { UCLA_BLUE_RGB } from "../constants";
+import { UCLA_BLUE_RGB, UCLA_GRADE_POINTS } from "../constants";
 import useCourseData from "../hooks/useCourseData";
 import { compareGrades, compareTerms, getTermLongName } from "../utils";
 import { Loading } from "./Loading";
@@ -32,13 +31,16 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
   const [selectedTerm, setSelectedTerm] = useState<string>("");
 
   const courseDataByInstructorName = useMemo(
-    () => groupBy(courseData, get("instructorName")),
+    () => groupBy(courseData, (row) => row.instructorName),
     [courseData],
   );
 
-  const rowCountByInstructorName = mapValues(courseDataByInstructorName, size);
+  const rowCountByInstructorName = mapValues(
+    courseDataByInstructorName,
+    (rows) => rows.length,
+  );
   const [instructorWithMostSections] =
-    maxBy(Object.entries(rowCountByInstructorName), get("1")) ?? [];
+    maxBy(Object.entries(rowCountByInstructorName), ([, count]) => count) ?? [];
 
   // On initial load, set selected instructor to instructor with most sections
   useEffect(() => {
@@ -52,7 +54,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
       mapValues(courseDataByInstructorName, (courseDataForInstructorName) => {
         const courseDataForInstructorNameByTerm = groupBy(
           courseDataForInstructorName,
-          get("enrollmentTerm"),
+          (row) => row.enrollmentTerm,
         );
         return courseDataForInstructorNameByTerm;
       }),
@@ -69,7 +71,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
             (courseDataForInstructorNameForTerm) => {
               const courseDataForInstructorNameForTermByGradeOffered = groupBy(
                 courseDataForInstructorNameForTerm,
-                get("gradeOffered"),
+                (row) => row.gradeOffered,
               );
               const gradeCountsForInstructorNameForTermByGradeOffered =
                 mapValues(
@@ -77,7 +79,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                   (courseDataForInstructorNameForTermForGradeOffered) => {
                     return sumBy(
                       courseDataForInstructorNameForTermForGradeOffered,
-                      compose(Number, get("gradeCount")),
+                      (row) => Number(row.gradeCount),
                     );
                   },
                 );
@@ -107,7 +109,28 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
   const gradeCountArray = Object.values(
     gradeCountsForInstructorNameForTerm ?? {},
   );
-  const totalGradeCountForInstructorNameForTerm = sum(gradeCountArray);
+  const validGradeCounts = Object.entries(
+    gradeCountsForInstructorNameForTerm ?? {},
+  ).filter(([, count]) => Number.isFinite(count) && count >= 0);
+  const totalGradeCountForInstructorNameForTerm = sumBy(
+    validGradeCounts,
+    ([, count]) => count,
+  );
+  const letterGradeCounts = validGradeCounts.filter(([grade]) =>
+    Object.hasOwn(UCLA_GRADE_POINTS, grade),
+  );
+  const letterGradeCount = sumBy(letterGradeCounts, ([, count]) => count);
+  const aRangeCount = sumBy(
+    letterGradeCounts.filter(([grade]) => /^A[+-]?$/.test(grade)),
+    ([, count]) => count,
+  );
+  const gradePoints = sumBy(
+    letterGradeCounts,
+    ([grade, count]) => UCLA_GRADE_POINTS[grade] * count,
+  );
+
+  const averageGpa =
+    letterGradeCount > 0 ? gradePoints / letterGradeCount : null;
   const maxGradeCount = Math.max(...gradeCountArray);
 
   const chartData = Object.keys(gradeCountsForInstructorNameForTerm ?? {})
@@ -118,6 +141,10 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
     .sort((a, b) => {
       return compareGrades(a.x, b.x);
     });
+
+  const mostCommonGrades = chartData
+    .filter(({ y }) => Number.isFinite(y) && y > 0 && y === maxGradeCount)
+    .map(({ x }) => x);
 
   const chartConfig: React.ComponentProps<typeof Bar>["data"] = {
     datasets: [
@@ -174,6 +201,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
               />
             </div>
           </div>
+
           <Bar
             data={chartConfig}
             options={{
@@ -218,6 +246,90 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
               },
             }}
           />
+          <div className="mt-4 text-left" aria-live="polite">
+            <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="flex flex-col text-center rounded-3xl bg-uclaBlue/5 px-3 py-3">
+                <dt className="text-left text-xs font-bold">Average GPA</dt>
+                <dd className="mt-auto flex min-h-[3.5rem] flex-wrap content-start items-baseline justify-center gap-x-1 pt-2 text-2xl font-bold tabular-nums">
+                  <span className="block leading-8">
+                    {averageGpa === null ? "—" : averageGpa.toFixed(2)}
+                  </span>
+                  <span className="whitespace-nowrap text-xs leading-4 font-normal text-gray-600">
+                    / 4.00
+                  </span>
+                </dd>
+              </div>
+              <div className="flex flex-col text-center rounded-3xl bg-uclaBlue/5 px-3 py-3">
+                <dt className="text-left text-xs font-bold">
+                  Most Common Grade
+                </dt>
+                <dd className="mt-auto flex min-h-[3.5rem] flex-wrap content-start items-baseline justify-center gap-x-1 pt-2 text-2xl font-bold tabular-nums">
+                  <span className="block leading-8">
+                    {mostCommonGrades.length > 0
+                      ? mostCommonGrades.join(" / ")
+                      : "—"}
+                  </span>
+                  <span className="whitespace-nowrap text-xs leading-4 font-normal text-gray-600">
+                    {mostCommonGrades.length > 0 && (
+                      <>
+                        ({maxGradeCount.toLocaleString("en-US")}/
+                        {totalGradeCountForInstructorNameForTerm.toLocaleString(
+                          "en-US",
+                        )}
+                        )
+                      </>
+                    )}
+                  </span>
+                </dd>
+              </div>
+              <div className="flex flex-col text-center rounded-3xl bg-uclaBlue/5 px-3 py-3">
+                <dt className="text-left text-xs font-bold">A-range</dt>
+                <dd className="mt-auto flex min-h-[3.5rem] flex-wrap content-start items-baseline justify-center gap-x-1 pt-2 text-2xl font-bold tabular-nums">
+                  <span className="block leading-8">
+                    {letterGradeCount > 0
+                      ? `${((aRangeCount / letterGradeCount) * 100).toFixed(1)}%`
+                      : "—"}
+                  </span>
+                  <span className="whitespace-nowrap text-xs leading-4 font-normal text-gray-600">
+                    {letterGradeCount > 0 && (
+                      <>
+                        ({aRangeCount.toLocaleString("en-US")}/
+                        {letterGradeCount.toLocaleString("en-US")})
+                      </>
+                    )}
+                  </span>
+                </dd>
+              </div>
+              <div className="flex flex-col text-center rounded-3xl bg-uclaBlue/5 px-3 py-3">
+                <dt className="text-left text-xs font-bold">Recorded Grades</dt>
+                <dd className="mt-auto flex min-h-[3.5rem] flex-wrap content-start items-baseline justify-center gap-x-1 pt-2 text-2xl font-bold tabular-nums">
+                  <span className="block leading-8">
+                    {totalGradeCountForInstructorNameForTerm.toLocaleString(
+                      "en-US",
+                    )}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <p className="mt-2 text-xs text-gray-600 text-left">
+            Average GPA calculation uses{" "}
+            {letterGradeCount.toLocaleString("en-US")} recorded letter grades
+            (A+ through F), weighted by grade count on the{" "}
+            <a
+              href="https://internationalcenter.ucla.edu/resources/grading-system"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2"
+            >
+              UCLA scale
+            </a>
+            . A+ and A both count as 4.0. Other outcomes, including P/NP and
+            incompletes, count toward recorded grades but are excluded from GPA.{" "}
+            A-range includes A+, A, and A−; parentheses show the A-range count
+            over the total letter-grade count. Most common grade shows its count
+            over all recorded grades; tied grades each have the shown count.
+          </p>
         </div>
       ) : (
         <Loading />
