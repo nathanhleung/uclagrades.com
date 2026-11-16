@@ -1,4 +1,5 @@
-import Course, { generateMetadata as courseMetadata } from "../../page";
+import { generateMetadata as courseMetadata } from "../../page";
+import { Redirect } from "@/app/components/Redirect";
 import subjectIndexJson from "@/app/generated/subject-index.json";
 import type { CourseRow } from "@/app/types";
 import { getTermLongName } from "@/app/utils";
@@ -58,7 +59,7 @@ async function getSelection(params: Props["params"]) {
     notFound();
   const coursePath = `/${encodeURIComponent(subjectArea)}/${encodeURIComponent(catalogNumber)}`;
   const selectionPath = `${coursePath}/${encodeURIComponent(instructorName)}/${encodeURIComponent(term)}`;
-  return { ...selection, instructor, selectionPath };
+  return { ...selection, instructor, coursePath, selectionPath };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -96,6 +97,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function SharedCourse({ params }: Props) {
-  await getSelection(params);
-  return <Course params={params} />;
+  // This static page gives iOS Messages a selection-specific OG image without
+  // running JavaScript. Browser visitors continue to the course's query URL.
+  const { coursePath, instructor, term } = await getSelection(params);
+  const query = new URLSearchParams({ instructor, term });
+  const href = `${coursePath}?${query}`;
+  return (
+    <Redirect
+      href={href}
+      fallback={
+        <p className="w-full p-8 text-center opacity-50">
+          <a className="underline" href={href}>
+            Open Course
+          </a>
+        </p>
+      }
+    >
+      <p className="w-full p-8 text-center opacity-50">Loading...</p>
+    </Redirect>
+  );
 }
