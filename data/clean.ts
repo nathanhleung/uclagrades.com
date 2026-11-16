@@ -156,4 +156,5 @@ main()
   .catch((err) => {
     console.error("An error occurred.");
     console.error(err);
+    process.exitCode = 1;
   });

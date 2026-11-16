@@ -1,4 +1,4 @@
-import { Response } from "@/app/api/courses/route";
+import type { Response } from "@/app/data/courses.json/route";
 import { getSubjectAreaLongName } from "@/app/utils";
 import Fuse from "fuse.js";
 import { useMemo } from "react";

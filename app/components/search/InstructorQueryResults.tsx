@@ -1,4 +1,4 @@
-import { Response } from "@/app/api/instructors/route";
+import type { Response } from "@/app/data/instructors.json/route";
 import { QueryResults } from "./QueryResults";
 
 type InstructorQueryResultsProps = {

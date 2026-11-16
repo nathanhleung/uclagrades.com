@@ -1,4 +1,4 @@
-import { Response } from "@/app/api/courses/route";
+import type { Response } from "@/app/data/courses.json/route";
 import { CourseQueryResults } from "./CourseQueryResults";
 
 function getSubjectAreaCourses(courses: Response, subjectArea: string) {

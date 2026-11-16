@@ -6,7 +6,6 @@
     "generate": "ts-node --compilerOptions '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' data/clean.ts && ts-node --compilerOptions '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' data/get-course-details.ts",
     "dev": "next dev --webpack",
     "build": "yarn run generate && NEXT_PUBLIC_COMMIT_HASH=$(git rev-parse HEAD) next build --webpack",
-    "start": "next start",
     "lint": "eslint .",
     "format": "prettier . --write"
   },

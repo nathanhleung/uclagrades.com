@@ -1,26 +1,28 @@
 import { addDays, isBefore } from "date-fns";
 import { useEffect, useState } from "react";
-import { Response as CoursesResponse } from "../api/courses/route";
-import { Response as InstructorsResponse } from "../api/instructors/route";
+import type { Response as CoursesResponse } from "../data/courses.json/route";
+import type { Response as InstructorsResponse } from "../data/instructors.json/route";
 
 /**
- * Gets a list of courses from the backend
+ * Gets the generated static course index
  *
  * @returns a list of courses is JSON format
  */
 async function getCourses() {
-  const res = await fetch("/api/courses");
+  const res = await fetch("/data/courses.json");
+  if (!res.ok) throw new Error(`Failed to load courses: ${res.status}`);
   const json: CoursesResponse = await res.json();
   return json;
 }
 
 /**
- * Gets a list of instructors from the backend
+ * Gets the generated static instructor index
  *
  * @returns a list of instructors is JSON format
  */
 async function getInstructors() {
-  const res = await fetch("/api/instructors");
+  const res = await fetch("/data/instructors.json");
+  if (!res.ok) throw new Error(`Failed to load instructors: ${res.status}`);
   const json: InstructorsResponse = await res.json();
   return json;
 }
