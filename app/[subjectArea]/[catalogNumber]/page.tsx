@@ -197,7 +197,12 @@ export default async function Course({ params }: Props) {
             <div className="w-full min-w-0 text-left text-xs">
               {instructors.length > 0 && (
                 <>
-                  <div className="mt-8" role="region" tabIndex={0}>
+                  <div
+                    className="mt-8 overflow-x-auto"
+                    role="region"
+                    aria-label="Instructor grade comparison"
+                    tabIndex={0}
+                  >
                     <InstructorGradeTable
                       instructors={instructors}
                       path={path}
