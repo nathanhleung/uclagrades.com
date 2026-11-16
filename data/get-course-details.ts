@@ -119,8 +119,9 @@ async function loadCourses(): Promise<RawCourseDetails[]> {
 // happens to mention hours, credit, or prerequisites.
 const logisticsPatterns = [
   /^(?:Lecture|Discussion|Laboratory|Seminar|Tutorial|Studio|Activity|Fieldwork|Clinic|Practicum|Workshop|Recitation)\b(?:\s*[/,(;]|\s+(?:and|or)\b).*\b(?:hours?|minutes?|to be arranged)\b/i,
-  /^(?:(?:Enforced|Recommended|Suggested|Required)\s+)*(?:requisites?|prerequisites?|corequisites?|co-requisites?|pre-requisites?)\s*(?::|for each offering\b)/i,
-  /^(?:Recommended\s+)?preparation\s*:/i,
+  /^(?:(?:(?:Strongly|Highly)\s+)?(?:Enforced|Recommended|Suggested|Required|Additional)\s+)*(?:requisites?|pre-?requisites?|co-?requisites?)(?:\s+(?:or|and)\s+(?:requisites?|pre-?requisites?|co-?requisites?))*\s*(?::|for\s+[^:]+:|for each offering\b)/i,
+  /^(?:(?:(?:Strongly|Highly)\s+)?(?:Recommended|Suggested|Required|Enforced)\s+)?preparation(?:\s+for\s+(?:undergraduate|graduate)\s+students)?\s*:/i,
+  /^(?:(?:Strongly|Highly)\s+)?(?:Recommended|Suggested|Required|Enforced)\s*:/i,
   /^(?:Units?|Credits?)\s*:/i,
   /^(?:Limited|Restricted|Open) to\b/i,
   /^Designed (?:for|as adjunct to)\b/i,
@@ -128,10 +129,14 @@ const logisticsPatterns = [
   /^(?:Letter|P\/NP|S\/U|In Progress|No)\b.*\bgrading\b/i,
   /^(?:May|Can) (?:not )?be (?:repeated|taken independently|applied toward)\b/i,
   /^(?:Each course|Courses?) may be (?:taken|repeated)\b/i,
-  /^Not open (?:for credit|to students)\b/i,
+  /^Not open (?:for credit|to)\b/i,
+  /^(?:May be )?Concurrently schedul(?:ed|e) with\b/i,
+  /^Enrollment (?:by consent|requires (?:consent|permission)) of\b/i,
+  /^Students must be in good academic standing and enrolled\b/i,
   /^Individual (?:honors )?contract\b.*\brequired\b/i,
   /^Honors content noted on transcript\b/i,
-  /^Course \S+ is (?:a )?(?:requisite|prerequisite|corequisite)\b/i,
+  /^Course\b[^.!?]*?\bis\s+(?:(?:a|an|not|normally|enforced|recommended|required)\s+)*(?:requisite|prerequisite|corequisite)\s+(?:to|for)\b/i,
+  /^Completion of course with grade of\b[^.!?]*\bis requisite to\b/i,
 ];
 
 function descriptionSentences(description: string): string[] {
