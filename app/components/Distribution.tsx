@@ -137,8 +137,8 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
     Object.hasOwn(UCLA_GRADE_POINTS, grade),
   );
   const letterGradeCount = sumBy(letterGradeCounts, ([, count]) => count);
-  const aRangeCount = sumBy(
-    letterGradeCounts.filter(([grade]) => /^A[+-]?$/.test(grade)),
+  const aGradeCount = sumBy(
+    letterGradeCounts.filter(([grade]) => grade === "A+" || grade === "A"),
     ([, count]) => count,
   );
   const gradePoints = sumBy(
@@ -327,17 +327,17 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                 </dd>
               </div>
               <div className="flex flex-col text-left rounded-3xl bg-uclaBlue/5 px-3 py-3">
-                <dt className="text-left text-xs font-bold">A-range</dt>
+                <dt className="text-left text-xs font-bold">A+/A %</dt>
                 <dd className="mt-auto flex flex-wrap items-baseline justify-start gap-x-1 pt-2 text-2xl font-bold tabular-nums">
                   <span className="block leading-8">
                     {letterGradeCount > 0
-                      ? `${((aRangeCount / letterGradeCount) * 100).toFixed(1)}%`
+                      ? `${((aGradeCount / letterGradeCount) * 100).toFixed(1)}%`
                       : "—"}
                   </span>
                   <span className="whitespace-nowrap text-xs leading-4 font-normal text-gray-600">
                     {letterGradeCount > 0 && (
                       <>
-                        ({aRangeCount.toLocaleString("en-US")}/
+                        ({aGradeCount.toLocaleString("en-US")}/
                         {letterGradeCount.toLocaleString("en-US")})
                       </>
                     )}
@@ -381,8 +381,8 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
             <br />
             <br />
             &quot;Most Common Grade&quot; shows its count over all recorded
-            grades. &quot;A-range&quot; includes A+, A, and A−; parentheses show
-            the A-range count over the total letter-grade count.
+            grades. &quot;A+/A %&quot; includes only A+ and A; parentheses show
+            the A+/A count over the total letter-grade count.
           </p>
           <div className="mt-6 flex justify-center">
             <ShareButton

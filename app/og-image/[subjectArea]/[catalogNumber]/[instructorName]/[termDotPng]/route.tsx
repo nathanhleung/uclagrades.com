@@ -40,8 +40,8 @@ function getChartStats(grades: { x: string; y: number }[]) {
     Object.hasOwn(UCLA_GRADE_POINTS, x),
   );
   const letterGradeCount = sumBy(letterGrades, ({ y }) => y);
-  const aRangeCount = sumBy(
-    letterGrades.filter(({ x }) => /^A[+-]?$/.test(x)),
+  const aGradeCount = sumBy(
+    letterGrades.filter(({ x }) => x === "A+" || x === "A"),
     ({ y }) => y,
   );
   const gradePoints = sumBy(
@@ -51,7 +51,7 @@ function getChartStats(grades: { x: string; y: number }[]) {
   return {
     total,
     letterGradeCount,
-    aRangeCount,
+    aGradeCount,
     averageGpa: letterGradeCount > 0 ? gradePoints / letterGradeCount : null,
   };
 }
@@ -174,9 +174,9 @@ export async function GET(
           : mode.join(" / ") || "—",
     },
     {
-      label: "A+/A/A- %",
+      label: "A+/A %",
       value: stats.letterGradeCount
-        ? `${((stats.aRangeCount / stats.letterGradeCount) * 100).toFixed(1)}%`
+        ? `${((stats.aGradeCount / stats.letterGradeCount) * 100).toFixed(1)}%`
         : "—",
     },
     { label: "Recorded Grades", value: stats.total.toLocaleString("en-US") },

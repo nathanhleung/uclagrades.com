@@ -10,7 +10,7 @@ type InstructorSummary = {
   displayName: string;
   term: string;
   letterGradeCount: number;
-  aRangeCount: number;
+  aGradeCount: number;
 };
 
 export function InstructorGradeTable({
@@ -20,17 +20,17 @@ export function InstructorGradeTable({
   instructors: InstructorSummary[];
   path: string;
 }) {
-  type SortColumn = "instructor" | "term" | "count" | "aRange";
+  type SortColumn = "instructor" | "term" | "count" | "aGrade";
   const columns: { key: SortColumn; label: string; numeric: boolean }[] = [
     { key: "instructor", label: "Instructor", numeric: false },
     { key: "term", label: "Latest Data From", numeric: false },
     { key: "count", label: "Latest Grades Count", numeric: true },
-    { key: "aRange", label: "A-range %", numeric: true },
+    { key: "aGrade", label: "A+/A %", numeric: true },
   ];
   const [{ column: sortColumn, descending }, setSorting] = useState<{
     column: SortColumn;
     descending: boolean;
-  }>({ column: "aRange", descending: true });
+  }>({ column: "aGrade", descending: true });
   const nextDescending = (column: SortColumn) =>
     column === sortColumn ? !descending : column !== "instructor";
   // Stable sorting keeps equal values in locale-aware alphabetical order.
@@ -47,14 +47,14 @@ export function InstructorGradeTable({
     instructor: (instructor) => instructorsByName.indexOf(instructor),
     term: ({ term }) => terms.indexOf(term),
     count: ({ letterGradeCount }) => letterGradeCount,
-    aRange: ({ aRangeCount, letterGradeCount }) =>
-      letterGradeCount ? aRangeCount / letterGradeCount : 0,
+    aGrade: ({ aGradeCount, letterGradeCount }) =>
+      letterGradeCount ? aGradeCount / letterGradeCount : 0,
   };
   const sortedInstructors = orderBy(
     instructorsByName,
     [
       // Missing percentages stay last in either direction.
-      ({ letterGradeCount }) => sortColumn === "aRange" && !letterGradeCount,
+      ({ letterGradeCount }) => sortColumn === "aGrade" && !letterGradeCount,
       sortIteratees[sortColumn],
     ],
     ["asc", descending ? "desc" : "asc"],
@@ -75,7 +75,7 @@ export function InstructorGradeTable({
                     : "ascending"
                   : undefined
               }
-              className={`py-2 font-medium ${column.key !== "aRange" ? "pr-4" : ""} ${column.numeric ? "text-right" : ""}`}
+              className={`py-2 font-medium ${column.key !== "aGrade" ? "pr-4" : ""} ${column.numeric ? "text-right" : ""}`}
             >
               <button
                 type="button"
@@ -136,9 +136,9 @@ export function InstructorGradeTable({
             <td className="py-3 text-right tabular-nums">
               {instructor.letterGradeCount > 0 ? (
                 <>
-                  {`${((instructor.aRangeCount / instructor.letterGradeCount) * 100).toFixed(1)}%`}{" "}
+                  {`${((instructor.aGradeCount / instructor.letterGradeCount) * 100).toFixed(1)}%`}{" "}
                   <span className="inline-block text-[0.85em] text-white/75">
-                    ({instructor.aRangeCount.toLocaleString("en-US")})
+                    ({instructor.aGradeCount.toLocaleString("en-US")})
                   </span>
                 </>
               ) : (

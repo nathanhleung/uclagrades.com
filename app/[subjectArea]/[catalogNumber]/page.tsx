@@ -209,13 +209,13 @@ export default async function Course({ params }: Props) {
                     />
                   </div>
                   <p className="mt-3">
-                    A-range % and grade counts cover only each instructor’s
-                    latest recorded term, shown in the &quot;Latest Data
-                    From&quot; column, combining all sections for the course.
-                    A-range % is the share of recorded letter grades (A+ through
-                    F) that are A+, A, or A−. Parentheses show the A-range count
-                    over the total letter-grade count. P/NP and incompletes are
-                    excluded. Records may be incomplete.
+                    A+/A % and grade counts cover only each instructor’s latest
+                    recorded term, shown in the &quot;Latest Data From&quot;
+                    column, combining all sections for the course. A+/A % is the
+                    share of recorded letter grades (A+ through F) that are A+
+                    or A. Parentheses show the A+/A count over the total
+                    letter-grade count. P/NP and incompletes are excluded.
+                    Records may be incomplete.
                   </p>
                 </>
               )}
@@ -303,8 +303,10 @@ function getCourseFromParams(params: Awaited<Props["params"]>) {
         letterGradeCount: sumBy(letterGradeRows, (row) =>
           Number(row.gradeCount),
         ),
-        aRangeCount: sumBy(
-          letterGradeRows.filter((row) => /^A[+-]?$/.test(row.gradeOffered)),
+        aGradeCount: sumBy(
+          letterGradeRows.filter(
+            (row) => row.gradeOffered === "A+" || row.gradeOffered === "A",
+          ),
           (row) => Number(row.gradeCount),
         ),
       };
