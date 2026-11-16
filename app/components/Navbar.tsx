@@ -21,7 +21,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between w-full bg-uclaBlue text-white p-3 lg:py-2 select-none">
+      <div className="flex items-center justify-between w-full min-h-[48px] bg-uclaBlue text-white p-3 lg:py-2 select-none">
         <div className="flex items-center gap-12">
           <Link href="/" className="font-bold hover:opacity-50">
             uclagrades.com
