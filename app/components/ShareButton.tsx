@@ -9,6 +9,7 @@ type Props = {
   term: string;
   disabled?: boolean;
   variant?: "tab" | "inline";
+  className?: string;
 };
 
 export function ShareButton({
@@ -18,6 +19,7 @@ export function ShareButton({
   term,
   disabled,
   variant = "tab",
+  className = "relative",
 }: Props) {
   const isInline = variant === "inline";
   const [message, setMessage] = useState("");
@@ -51,11 +53,7 @@ export function ShareButton({
   }
 
   return (
-    <div
-      className={
-        isInline ? "relative" : "absolute left-full top-9 z-10 sm:top-[4.25rem]"
-      }
-    >
+    <div className={className}>
       <p
         role="status"
         className={

@@ -235,6 +235,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
           </div>
 
           <ShareButton
+            className="absolute left-full top-9 z-10 sm:top-[4.25rem]"
             subjectArea={subjectArea}
             catalogNumber={catalogNumber}
             instructor={selectedInstructorName}
