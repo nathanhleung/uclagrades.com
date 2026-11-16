@@ -39,12 +39,9 @@ This repository contains the full source code for the website; contributions are
 
 ## Getting Started
 
-First, use Node.js 24 and install dependencies with the pinned Yarn version:
+First, install dependencies:
 
 ```bash
-nvm install
-nvm use
-corepack enable
 yarn install
 ```
 
@@ -57,22 +54,6 @@ yarn dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-## Dependency maintenance
-
-Dependabot checks npm dependencies and GitHub Actions weekly. The dependency audit
-workflow fails on high and critical advisories in dependency pull requests and also
-runs weekly. To include lower-severity advisories locally, run:
-
-```bash
-yarn npm audit --all --recursive
-```
-
-The November 2026 refresh retains Tailwind 3, TypeScript 5, and date-fns 2;
-major migrations should be reviewed separately. One moderate advisory remains in
-`minimatch` 10 through `@typescript-eslint/typescript-estree`; its current dependency
-range has no patched version. Avoid forcing a major transitive override solely to
-silence the audit.
 
 ## Learn More
 
