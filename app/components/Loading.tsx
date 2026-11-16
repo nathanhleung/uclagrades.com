@@ -32,7 +32,7 @@ const Loading = ({ noLayoutStyles = false, className = "" }: LoadingProps) => {
         className,
       )}
     >
-      <h1
+      <p
         className={classNames(
           "text-2xl opacity-25 font-bold",
           !noLayoutStyles && "text-left w-44 p-6",
@@ -42,7 +42,7 @@ const Loading = ({ noLayoutStyles = false, className = "" }: LoadingProps) => {
         {".".repeat(dotCount)}
         {/* &nbsp; */}
         {" ".repeat(3 - dotCount)}
-      </h1>
+      </p>
     </div>
   );
 };

@@ -41,14 +41,17 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const course = getCourseFromParams(await params);
+  const rows = subjectIndex[course.subjectArea][course.catalogNumber];
+  const gradeCount = sumBy(
+    rows.filter(
+      (row) =>
+        Number.isFinite(Number(row.gradeCount)) && Number(row.gradeCount) >= 0,
+    ),
+    (row) => Number(row.gradeCount),
+  );
   const defaultRows =
     maxBy(
-      Object.values(
-        groupBy(
-          subjectIndex[course.subjectArea][course.catalogNumber],
-          (row) => row.instructorName,
-        ),
-      ),
+      Object.values(groupBy(rows, (row) => row.instructorName)),
       (rows) => rows.length,
     ) ?? [];
   const instructor = defaultRows[0]?.instructorName || "~";
@@ -60,8 +63,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     height: 630,
     alt: `${course.subjectArea} ${course.catalogNumber} grade distribution`,
   };
-  const title = `${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle} Grade Distribution & Professors`;
-  const description = `Explore UCLA ${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle} grade distributions. Compare grades by instructor and term. See average grades and A-range percentages. Available terms: ${course.terms[0]}${course.terms.length > 1 ? ` through ${course.terms[course.terms.length - 1]}` : ""}.`;
+  const title = `${course.subjectArea} ${course.catalogNumber} Grade Distribution & Professors`;
+  const instructorCount = course.instructors.length;
+  const coverage = `${course.terms[0]}${course.terms.length > 1 ? ` through ${course.terms[course.terms.length - 1]}` : ""}`;
+  const description = `UCLA ${course.subjectArea} ${course.catalogNumber}: ${gradeCount.toLocaleString("en-US")} recorded grades${instructorCount > 0 ? ` across ${instructorCount.toLocaleString("en-US")} ${instructorCount === 1 ? "instructor" : "instructors"}` : ""}, ${coverage}. Compare grade distributions by professor and term.`;
 
   return {
     title,
@@ -111,13 +116,31 @@ export default async function Course({ params }: Props) {
       item: new URL(item.path, "https://uclagrades.com").href,
     })),
   };
+  const dataset = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: `UCLA ${subjectArea} ${catalogNumber} Grade Distributions`,
+    description: `Recorded grade counts for UCLA ${subjectArea} ${catalogNumber}: ${courseTitle}, grouped by instructor, academic term, and grade. Available terms: ${terms.join(", ")}.`,
+    url: new URL(path, "https://uclagrades.com").href,
+    isAccessibleForFree: true,
+    variableMeasured: ["Instructor", "Academic term", "Grade", "Grade count"],
+    distribution: {
+      "@type": "DataDownload",
+      contentUrl: new URL(`/data/courses${path}.json`, "https://uclagrades.com")
+        .href,
+      encodingFormat: "application/json",
+    },
+  };
 
   return (
     <main className="flex flex-col w-full">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumb).replace(/</g, "\\u003c"),
+          __html: JSON.stringify([breadcrumb, dataset]).replace(
+            /</g,
+            "\\u003c",
+          ),
         }}
       />
       <div className="text-center">

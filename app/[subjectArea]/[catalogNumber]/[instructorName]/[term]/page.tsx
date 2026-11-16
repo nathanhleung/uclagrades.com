@@ -3,7 +3,8 @@ import { Redirect } from "@/app/components/Redirect";
 import subjectIndexJson from "@/app/generated/subject-index.json";
 import type { CourseRow } from "@/app/types";
 import { getTermLongName } from "@/app/utils";
-import { mapValues, uniqBy } from "lodash";
+import { UCLA_GRADE_POINTS } from "@/app/constants";
+import { mapValues, sumBy, uniqBy } from "lodash";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -51,15 +52,14 @@ async function getSelection(params: Props["params"]) {
       ? catalog[catalogNumber]
       : undefined;
   const instructor = instructorName === "~" ? "" : instructorName;
-  if (
-    !rows?.some(
+  const selectedRows =
+    rows?.filter(
       (row) => row.instructorName === instructor && row.enrollmentTerm === term,
-    )
-  )
-    notFound();
+    ) ?? [];
+  if (!selectedRows.length) notFound();
   const coursePath = `/${encodeURIComponent(subjectArea)}/${encodeURIComponent(catalogNumber)}`;
   const selectionPath = `${coursePath}/${encodeURIComponent(instructorName)}/${encodeURIComponent(term)}`;
-  return { ...selection, instructor, coursePath, selectionPath };
+  return { ...selection, instructor, coursePath, selectionPath, selectedRows };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -69,7 +69,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     selection.instructor.split(", ").reverse().join(" ") ||
     "Instructor not recorded";
   const title = `${selection.subjectArea} ${selection.catalogNumber}: ${instructor} · ${getTermLongName(selection.term)}`;
-  const description = `Grade distribution for ${selection.subjectArea} ${selection.catalogNumber}, ${instructor}, ${getTermLongName(selection.term)}.`;
+  const validRows = selection.selectedRows.filter(
+    (row) =>
+      Number.isFinite(Number(row.gradeCount)) && Number(row.gradeCount) >= 0,
+  );
+  const gradeCount = sumBy(validRows, (row) => Number(row.gradeCount));
+  const letterRows = validRows.filter((row) =>
+    Object.hasOwn(UCLA_GRADE_POINTS, row.gradeOffered),
+  );
+  const letterGradeCount = sumBy(letterRows, (row) => Number(row.gradeCount));
+  const averageGpa =
+    letterGradeCount > 0
+      ? sumBy(
+          letterRows,
+          (row) => UCLA_GRADE_POINTS[row.gradeOffered] * Number(row.gradeCount),
+        ) / letterGradeCount
+      : null;
+  const description = `UCLA ${selection.subjectArea} ${selection.catalogNumber} with ${instructor}, ${getTermLongName(selection.term)}: ${gradeCount.toLocaleString("en-US")} recorded grades.${averageGpa !== null ? ` Average GPA: ${averageGpa.toFixed(2)} (letter grades only).` : ""}`;
   const image = {
     url: `/og-image${selection.selectionPath}.png`,
     width: 1200,
