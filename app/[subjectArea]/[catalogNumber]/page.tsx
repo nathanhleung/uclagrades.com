@@ -7,6 +7,9 @@ import type { Metadata } from "next";
 import { InstructorGradeTable } from "@/app/components/InstructorGradeTable";
 import { notFound } from "next/navigation";
 import { groupBy, last, maxBy, sumBy, uniq } from "lodash";
+import Link from "next/link";
+import { rankingKinds, rankingLabels } from "@/app/content/constants";
+import { rankingPath } from "@/app/content/utils";
 
 type Props = {
   params: Promise<{ subjectArea: string; catalogNumber: string }>;
@@ -227,22 +230,28 @@ export default async function Course({ params }: Props) {
               </dl>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-2 mt-8">
+            <nav
+              className="mt-8 flex w-full flex-wrap items-center justify-center gap-2"
+              aria-label="Course links and department rankings"
+            >
               <a
-                className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
+                className="inline-flex items-center justify-center rounded border border-white/30 px-2 py-1 text-center text-xs font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
                 href={subjectPath}
               >
                 See All {subjectArea} Courses
               </a>
-              <a
-                className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform?usp=sf_link"
-              >
-                Report Missing Data
-              </a>
-            </div>
+
+              {rankingKinds.map((kind) => (
+                <Link
+                  key={kind}
+                  href={rankingPath(kind, subjectArea)}
+                  prefetch={false}
+                  className="inline-flex items-center justify-center rounded border border-white/30 px-2 py-1 text-center text-xs font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
+                >
+                  {rankingLabels[kind]} {subjectArea} Classes
+                </Link>
+              ))}
+            </nav>
           </div>
         </div>
       </div>

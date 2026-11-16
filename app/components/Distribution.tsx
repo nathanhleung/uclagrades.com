@@ -384,7 +384,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
             grades. &quot;A+/A %&quot; includes only A+ and A; parentheses show
             the A+/A count over the total letter-grade count.
           </p>
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <ShareButton
               variant="inline"
               subjectArea={subjectArea}
@@ -393,6 +393,14 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
               term={selectedTerm}
               disabled={totalGradeCountForInstructorNameForTerm === 0}
             />
+            <a
+              className="inline-flex items-center justify-center rounded-lg border border-uclaBlue/30 bg-white px-3 py-2 text-center text-xs font-semibold text-uclaBlue transition-colors hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-uclaBlue"
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform?usp=sf_link"
+            >
+              Report Missing Data
+            </a>
           </div>
         </div>
       ) : (
