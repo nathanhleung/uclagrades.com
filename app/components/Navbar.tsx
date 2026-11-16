@@ -80,7 +80,7 @@ const Navbar = () => {
           setSearchModalOpen(false);
         }}
         bodyOpenClassName="overflow-hidden"
-        overlayClassName="fixed inset-0 bg-[rgba(39,116,174,0.95)]"
+        overlayClassName="fixed inset-0 z-50 bg-[rgba(39,116,174,0.95)]"
         contentLabel="Search for classes"
         className="relative top-[10vh] max-h-[75vh] md:w-[65%] lg:w-[60%] xl:w-[50%] md:mx-auto items-center p-6 sm:p-8 md:p-12 overflow-y-auto"
       >
