@@ -1,8 +1,8 @@
 "use client";
 
-import "chart.js/auto";
+import { Chart } from "chart.js/auto";
 import { groupBy, last, mapValues, maxBy, sumBy } from "lodash";
-import React, { Suspense, useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { UCLA_BLUE_RGB, UCLA_GRADE_POINTS } from "../constants";
 import useCourseData from "../hooks/useCourseData";
@@ -18,6 +18,24 @@ type DistributionProps = {
 };
 
 const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
+  const chartRef = useRef<Chart<"bar">>(null);
+
+  useEffect(() => {
+    // Canvas text does not inherit CSS fonts. Redraw once the webfont is ready.
+    let active = true;
+    void document.fonts.ready.then(() => {
+      if (!active) {
+        return;
+      }
+
+      Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+      chartRef.current?.update();
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const { courseData } = useCourseData(subjectArea, catalogNumber);
   const [selectedInstructorName, setSelectedInstructorName] = useState("");
 
@@ -224,6 +242,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
             disabled={totalGradeCountForInstructorNameForTerm === 0}
           />
           <Bar
+            ref={chartRef}
             data={chartConfig}
             options={{
               animation: {

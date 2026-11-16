@@ -1,9 +1,27 @@
+import localFont from "next/font/local";
 import Marquee from "react-fast-marquee";
 import { About } from "./components/About";
 import { GoogleAnalytics } from "./components/GoogleAnalytics";
 import { MobileNavbar } from "./components/MobileNavbar";
 import { Navbar } from "./components/Navbar";
 import "./globals.css";
+
+const switzer = localFont({
+  src: [
+    {
+      path: "./fonts/Switzer-Variable.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Switzer-VariableItalic.woff2",
+      weight: "100 900",
+      style: "italic",
+    },
+  ],
+  variable: "--font-switzer",
+  display: "swap",
+});
 
 export const metadata = {
   metadataBase: new URL("https://uclagrades.com"),
@@ -21,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={switzer.variable}>
       <head>
         <GoogleAnalytics />
       </head>

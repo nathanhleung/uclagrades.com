@@ -64,6 +64,10 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
+## Fonts
+
+The site, charts, and social previews use [Switzer by Indian Type Foundry](https://www.fontshare.com/fonts/switzer), self-hosted from `app/fonts` under the [ITF Free Font License](app/fonts/Switzer-FFL.txt). The site includes variable normal and italic web fonts; social previews use regular and semibold TTF files. Bold text uses weight 600.
+
 ## Hosting
 
 The app is deployed on Vercel and available at https://uclagrades.com/. It is a static site, with no Next.js server-side features.

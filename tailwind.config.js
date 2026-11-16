@@ -1,3 +1,5 @@
+const { fontFamily } = require("tailwindcss/defaultTheme");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -7,6 +9,12 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontWeight: {
+        bold: "600",
+      },
+      fontFamily: {
+        sans: ["var(--font-switzer)", ...fontFamily.sans],
+      },
       colors: {
         uclaGold: "rgb(255, 209, 0)",
         uclaBlue: "rgb(39, 116, 174)",

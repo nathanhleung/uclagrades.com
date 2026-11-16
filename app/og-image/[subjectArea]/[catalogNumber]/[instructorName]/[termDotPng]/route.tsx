@@ -17,15 +17,15 @@ const detailsIndex: Record<
   Record<string, { courseTitle: string }[]>
 > = detailsIndexJson;
 
-// ImageResponse's bundled font has only a regular weight. Supply real bold
+// ImageResponse's bundled font has only a regular weight. Supply real semibold
 // outlines as well so the hierarchy survives a small messaging-app preview.
-const fonts = ([400, 700] as const).map((weight) => ({
-  name: "Geist",
+const fonts = ([400, 600] as const).map((weight) => ({
+  name: "Switzer",
   data: readFileSync(
     path.join(
       process.cwd(),
       "app/fonts",
-      weight === 700 ? "Geist-Bold.ttf" : "Geist-Regular.ttf",
+      weight === 600 ? "Switzer-Semibold.ttf" : "Switzer-Regular.ttf",
     ),
   ),
   weight,
@@ -194,7 +194,7 @@ export async function GET(
           color: "#111827",
           borderTop: "10px solid #ffd100",
           padding: "30px 48px 40px",
-          fontFamily: "Geist",
+          fontFamily: "Switzer",
         }}
       >
         <div
@@ -212,7 +212,7 @@ export async function GET(
                 height: 72,
                 alignItems: "center",
                 fontSize: code.length > 16 ? 52 : 64,
-                fontWeight: 700,
+                fontWeight: 600,
                 color: "#005587",
                 letterSpacing: -2,
               }}
@@ -248,7 +248,7 @@ export async function GET(
               style={{
                 display: "flex",
                 fontSize: 28,
-                fontWeight: 700,
+                fontWeight: 600,
                 color: "#2774ae",
                 letterSpacing: -0.7,
               }}
@@ -332,7 +332,7 @@ export async function GET(
                   height: 40,
                   marginTop: 10,
                   fontSize: 30,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   color: "#005587",
                   alignItems: "center",
                 }}
@@ -352,7 +352,7 @@ export async function GET(
               alignItems: "center",
               justifyContent: "center",
               fontSize: 100,
-              fontWeight: 700,
+              fontWeight: 600,
               letterSpacing: -4,
               color: "#9ca3af",
               opacity: 0.15,
@@ -397,7 +397,7 @@ export async function GET(
                   display: "flex",
                   height: 28,
                   fontSize: 23,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   color: "#374151",
                   alignItems: "center",
                 }}
@@ -410,7 +410,7 @@ export async function GET(
                   height: 54,
                   alignItems: "center",
                   fontSize: stat.value.length > 8 ? 36 : 44,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   color: "#005587",
                   letterSpacing: -1,
                 }}
