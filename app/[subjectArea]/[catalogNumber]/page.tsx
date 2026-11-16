@@ -25,6 +25,8 @@ const courseDetailsIndex: Record<
     {
       courseTitle: string;
       cleanedDescription: string;
+      units: string;
+      courseFormats: string[];
     }[]
   >
 > = courseDetailsIndexJson;
@@ -64,6 +66,8 @@ export default async function Course({ params }: Props) {
     catalogNumber,
     courseTitle,
     description,
+    units,
+    courseFormats,
     instructors,
     terms,
     path,
@@ -126,6 +130,16 @@ export default async function Course({ params }: Props) {
               {description && (
                 <p className="mt-5 text-left text-base leading-relaxed text-gray-700">
                   {description}
+                </p>
+              )}
+              {(units || courseFormats.length > 0) && (
+                <p className="mt-3 text-left text-sm text-gray-500">
+                  {[
+                    ...(units
+                      ? [`${units} ${units === "1" ? "unit" : "units"}`]
+                      : []),
+                    ...courseFormats,
+                  ].join(", ")}
                 </p>
               )}
             </div>
@@ -256,6 +270,8 @@ function getCourseFromParams(params: Awaited<Props["params"]>) {
     catalogNumber,
     courseTitle,
     description: detail?.cleanedDescription,
+    units: detail?.units,
+    courseFormats: detail?.courseFormats ?? [],
     terms,
     instructors,
     path: `/${encodeURIComponent(subjectArea)}/${encodeURIComponent(catalogNumber)}`,

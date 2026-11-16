@@ -4,7 +4,6 @@
 import { parse, stringify } from "csv/sync";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
-import type { BaseCourseRow } from "../app/types";
 
 const API_BASE = "https://api.ucla.edu/sis/publicapis/course/";
 const OUTPUT_PATH = path.resolve(__dirname, "course-details.csv");
@@ -13,17 +12,13 @@ const INDEX_PATH = path.resolve(
   "../app/generated/course-details-index.json",
 );
 
-type CourseDetails = Record<string, string>;
-type ExtractedCourseDetails = CourseDetails &
-  BaseCourseRow & {
-    cleanedDescription: string;
-  };
+type RawCourseDetails = Record<string, string>;
 type CourseDetailsIndex = Record<
   string,
-  Record<string, ExtractedCourseDetails[]>
+  Record<string, ReturnType<typeof extractCourseDetails>[]>
 >;
 
-function validateCourse(record: unknown): CourseDetails {
+function validateCourse(record: unknown): RawCourseDetails {
   if (
     typeof record !== "object" ||
     record === null ||
@@ -34,7 +29,7 @@ function validateCourse(record: unknown): CourseDetails {
   ) {
     throw new Error("Unexpected course record");
   }
-  const course: CourseDetails = {};
+  const course: RawCourseDetails = {};
   for (const [key, value] of Object.entries(record)) {
     if (typeof value !== "string") {
       throw new Error(`Unexpected course field ${key}`);
@@ -68,7 +63,7 @@ async function fetchRecords(endpoint: string): Promise<unknown[]> {
 
 async function fetchCourses() {
   const subjects = await fetchRecords("getallcourses");
-  const courses: CourseDetails[] = [];
+  const courses: RawCourseDetails[] = [];
 
   for (let index = 0; index < subjects.length; index++) {
     const subject = subjects[index];
@@ -102,7 +97,7 @@ async function fetchCourses() {
   return courses;
 }
 
-async function loadCourses(): Promise<CourseDetails[]> {
+async function loadCourses(): Promise<RawCourseDetails[]> {
   let csv: string;
   try {
     csv = await readFile(OUTPUT_PATH, "utf-8");
@@ -139,11 +134,15 @@ const logisticsPatterns = [
   /^Course \S+ is (?:a )?(?:requisite|prerequisite|corequisite)\b/i,
 ];
 
-export function cleanCourseDescription(description: string): string {
+function descriptionSentences(description: string): string[] {
   return description
     .trim()
     .replace(/^(?:\((?:Same as|Formerly numbered)\b[^)]*\)\s*)+/i, "")
-    .split(/(?<=[.!?])\s+(?=[A-Z(])/)
+    .split(/(?<=[.!?])\s+(?=[A-Z(])/);
+}
+
+export function cleanCourseDescription(description: string): string {
+  return descriptionSentences(description)
     .filter(
       (sentence) =>
         !logisticsPatterns.some((pattern) => pattern.test(sentence)),
@@ -152,33 +151,40 @@ export function cleanCourseDescription(description: string): string {
     .trim();
 }
 
-function extractCourseDetails(course: CourseDetails): ExtractedCourseDetails {
+export function extractCourseDetails(course: RawCourseDetails) {
   const separator = course.course_title.indexOf(". ");
   const subjectArea = course.subj_area_cd.trim();
   const catalogNumber = course.course_title.slice(0, separator).trim();
   if (separator < 1 || !subjectArea || !catalogNumber) {
     throw new Error(`Cannot index course: ${JSON.stringify(course)}`);
   }
-  const camelCaseCourse: CourseDetails = {};
-  for (const [key, value] of Object.entries(course)) {
-    const camelCaseKey = key.replace(/_([a-z])/g, (_, letter: string) =>
-      letter.toUpperCase(),
+  // Only extract formats from recognizable contact-hour sentences, so prose
+  // mentioning lectures or labs as subject matter does not become a format.
+  const formats = descriptionSentences(course.crs_desc)
+    .filter((sentence) => logisticsPatterns[0].test(sentence))
+    .flatMap(
+      (sentence) =>
+        sentence.match(
+          /\b(?:lecture|discussion|laboratory|seminar|tutorial|studio|activity|fieldwork|clinic|practicum|workshop|recitation)\b/gi,
+        ) ?? [],
+    )
+    .map((format) =>
+      format.toLowerCase() === "laboratory" ? "lab" : format.toLowerCase(),
     );
-    // Reserve courseTitle for the normalized title used by the other indexes.
-    camelCaseCourse[key === "course_title" ? "rawCourseTitle" : camelCaseKey] =
-      value;
-  }
   return {
-    ...camelCaseCourse,
     subjectArea,
     catalogNumber,
     courseTitle: course.course_title.slice(separator + 2).trim(),
+    subjectName: course.subj_area_nm.trim(),
+    units: course.unt_rng.trim().replace(/\b(\d+)\.0\b/g, "$1"),
+    courseLevel: course.crs_career_lvl_nm.trim(),
+    courseFormats: Array.from(new Set(formats)),
     cleanedDescription: cleanCourseDescription(course.crs_desc),
   };
 }
 
 function createCourseIndex(
-  courses: ExtractedCourseDetails[],
+  courses: ReturnType<typeof extractCourseDetails>[],
 ): CourseDetailsIndex {
   const index: CourseDetailsIndex = {};
   for (const course of courses) {
@@ -192,7 +198,7 @@ async function main() {
   // 1. Download raw records, or reuse the existing CSV.
   const rawCourses = await loadCourses();
 
-  // 2. CamelCase source fields and add extracted/cleaned fields in memory.
+  // 2. Extract normalized fields and clean descriptions in memory.
   const courses = rawCourses.map(extractCourseDetails);
 
   // 3. Create and write the subject/course index.
