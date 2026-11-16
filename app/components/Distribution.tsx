@@ -10,6 +10,7 @@ import { compareGrades, compareTerms, getTermLongName } from "../utils";
 import { Loading } from "./Loading";
 import { Select } from "./Select";
 import { useSearchParams } from "next/navigation";
+import { ShareButton } from "./ShareButton";
 
 type DistributionProps = {
   subjectArea: string;
@@ -21,13 +22,6 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
   const [selectedInstructorName, setSelectedInstructorName] = useState("");
 
   const searchParams = useSearchParams();
-  useEffect(() => {
-    if (searchParams.has("instructor")) {
-      const instructorParam = searchParams.get("instructor") ?? "";
-      setSelectedInstructorName(instructorParam);
-    }
-  }, [searchParams]);
-
   const [selectedTerm, setSelectedTerm] = useState<string>("");
 
   const courseDataByInstructorName = useMemo(
@@ -42,12 +36,15 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
   const [instructorWithMostSections] =
     maxBy(Object.entries(rowCountByInstructorName), ([, count]) => count) ?? [];
 
-  // On initial load, set selected instructor to instructor with most sections
+  // Resolve shared instructor filters after the course data has loaded.
   useEffect(() => {
-    if (selectedInstructorName === "" && instructorWithMostSections) {
-      setSelectedInstructorName(instructorWithMostSections);
-    }
-  }, [instructorWithMostSections, selectedInstructorName]);
+    const requested = searchParams.get("instructor");
+    const instructor =
+      requested !== null && Object.hasOwn(courseDataByInstructorName, requested)
+        ? requested
+        : instructorWithMostSections;
+    if (instructor !== undefined) setSelectedInstructorName(instructor);
+  }, [searchParams, courseDataByInstructorName, instructorWithMostSections]);
 
   const courseDataByInstructorNameByTerm = useMemo(
     () =>
@@ -101,14 +98,16 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
   );
 
   useEffect(() => {
-    setSelectedTerm(last(instructorTerms) ?? "");
-  }, [selectedInstructorName, instructorTerms]);
+    const requested = searchParams.get("term") ?? "";
+    setSelectedTerm(
+      instructorTerms.includes(requested)
+        ? requested
+        : (last(instructorTerms) ?? ""),
+    );
+  }, [instructorTerms, searchParams]);
 
   const gradeCountsForInstructorNameForTerm =
     gradeCountsByInstructorNameByTerm?.[selectedInstructorName]?.[selectedTerm];
-  const gradeCountArray = Object.values(
-    gradeCountsForInstructorNameForTerm ?? {},
-  );
   const validGradeCounts = Object.entries(
     gradeCountsForInstructorNameForTerm ?? {},
   ).filter(([, count]) => Number.isFinite(count) && count >= 0);
@@ -131,7 +130,10 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
 
   const averageGpa =
     letterGradeCount > 0 ? gradePoints / letterGradeCount : null;
-  const maxGradeCount = Math.max(...gradeCountArray);
+  const maxGradeCount = Math.max(
+    0,
+    ...validGradeCounts.map(([, count]) => count),
+  );
 
   const chartData = Object.keys(gradeCountsForInstructorNameForTerm ?? {})
     .map((gradeOffered) => ({
@@ -179,6 +181,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                       "instructor",
                       newSelectedInstructorName,
                     );
+                    url.searchParams.delete("term");
                     history.replaceState({}, "", url);
                   }
                 }}
@@ -195,6 +198,9 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                 onChange={(newSelectedTerm) => {
                   if (newSelectedTerm) {
                     setSelectedTerm(newSelectedTerm);
+                    const url = new URL(window.location.href);
+                    url.searchParams.set("term", newSelectedTerm);
+                    history.replaceState({}, "", url);
                   }
                 }}
                 options={instructorTerms}
@@ -202,6 +208,13 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
             </div>
           </div>
 
+          <ShareButton
+            subjectArea={subjectArea}
+            catalogNumber={catalogNumber}
+            instructor={selectedInstructorName}
+            term={selectedTerm}
+            disabled={totalGradeCountForInstructorNameForTerm === 0}
+          />
           <Bar
             data={chartConfig}
             options={{
@@ -217,7 +230,8 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                     label: (context) => {
                       const gradeCount = context.parsed.y;
                       const percentageOfTotal =
-                        (gradeCount / totalGradeCountForInstructorNameForTerm) *
+                        (gradeCount /
+                          (totalGradeCountForInstructorNameForTerm || 1)) *
                         100;
                       return `${gradeCount} (${percentageOfTotal.toFixed(1)}%)`;
                     },
@@ -230,7 +244,8 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                     count: 7,
                     callback: (value) => {
                       const percentageTick =
-                        Number(value) / totalGradeCountForInstructorNameForTerm;
+                        Number(value) /
+                        (totalGradeCountForInstructorNameForTerm || 1);
                       return `${(percentageTick * 100).toFixed(1)}%`;
                     },
                   },
@@ -238,10 +253,11 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                   // If one letter grade makes up over ~93% of the total count of grades,
                   // keep 100% as the maximum tick; otherwise leave a top margin of 1/14th
                   // of the max single letter grade count for more spacing on top.
-                  max: Math.min(
-                    (15 / 14) * maxGradeCount,
-                    totalGradeCountForInstructorNameForTerm,
-                  ),
+                  max:
+                    Math.min(
+                      (15 / 14) * maxGradeCount,
+                      totalGradeCountForInstructorNameForTerm,
+                    ) || 1,
                 },
               },
             }}
@@ -340,6 +356,16 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
             grades. &quot;A-range&quot; includes A+, A, and A−; parentheses show
             the A-range count over the total letter-grade count.
           </p>
+          <div className="mt-6 flex justify-center">
+            <ShareButton
+              variant="inline"
+              subjectArea={subjectArea}
+              catalogNumber={catalogNumber}
+              instructor={selectedInstructorName}
+              term={selectedTerm}
+              disabled={totalGradeCountForInstructorNameForTerm === 0}
+            />
+          </div>
         </div>
       ) : (
         <Loading />

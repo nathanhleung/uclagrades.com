@@ -1,5 +1,4 @@
 import { Distribution } from "@/app/components/Distribution";
-import { ShareCourseButton } from "@/app/components/ShareCourseButton";
 import subjectIndexJson from "@/app/generated/subject-index.json";
 import courseDetailsIndexJson from "@/app/generated/course-details-index.json";
 import type { CourseRow } from "@/app/types";
@@ -132,12 +131,6 @@ export default async function Course({ params }: Props) {
                 <h1 className="min-w-0 text-3xl sm:text-4xl font-bold leading-tight">
                   {subjectArea} {catalogNumber}: {courseTitle}
                 </h1>
-                <div className="shrink-0 pt-1">
-                  <ShareCourseButton
-                    subjectArea={subjectArea}
-                    catalogNumber={catalogNumber}
-                  />
-                </div>
               </div>
               {description && (
                 <p className="mt-5 text-left text-base leading-relaxed text-gray-700">
@@ -159,7 +152,7 @@ export default async function Course({ params }: Props) {
         </div>
         <div className="w-full h-auto flex flex-1 justify-center p-4 sm:p-8 md:p-12 text-white bg-uclaBlue">
           <div className="flex flex-col w-full md:w-[65%] lg:w-[60%] xl:w-[50%] md:mx-auto items-center">
-            <div className="w-full text-black bg-white shadow-xl p-4 sm:p-12 rounded-xl">
+            <div className="relative w-full text-black bg-white shadow-xl p-4 sm:p-12 rounded-xl">
               <Distribution
                 subjectArea={subjectArea}
                 catalogNumber={catalogNumber}
