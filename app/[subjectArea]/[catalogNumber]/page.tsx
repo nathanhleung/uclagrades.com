@@ -47,8 +47,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     height: 630,
     alt: `${course.subjectArea} ${course.catalogNumber} grade distribution`,
   };
-  const title = `${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle}`;
-  const description = `Explore UCLA grade distributions for ${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle}. Compare grades by instructor and term. Available terms: ${course.terms[0]}${course.terms.length > 1 ? ` through ${course.terms[course.terms.length - 1]}` : ""}.`;
+  const title = `${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle} Grade Distribution & Professors`;
+  const description = `Explore UCLA ${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle} grade distributions. Compare grades by instructor and term. See average grades and A-range percentages. Available terms: ${course.terms[0]}${course.terms.length > 1 ? ` through ${course.terms[course.terms.length - 1]}` : ""}.`;
 
   return {
     title,
@@ -111,24 +111,24 @@ export default async function Course({ params }: Props) {
         <div className="flex items-center justify-between p-6 sm:p-8 md:p-12">
           <div className="flex flex-1 justify-center items-center">
             <div className="w-full max-w-3xl text-center">
-              <div className="flex justify-center gap-2 mb-6">
+              <div className="flex justify-start gap-2 mb-4">
                 <a className="text-uclaBlue hover:opacity-50" href={`/`}>
                   Home
                 </a>
-                <span>/</span>
+                <span aria-hidden="true">›</span>
                 <a
                   className="text-uclaBlue hover:opacity-50"
                   href={subjectPath}
                 >
                   {subjectArea}
                 </a>
-                <span>/</span>
+                <span aria-hidden="true">›</span>
                 <a className="text-uclaBlue hover:opacity-50" href={path}>
                   {catalogNumber}
                 </a>
               </div>
-              <div className="flex items-start justify-center gap-3">
-                <h1 className="min-w-0 text-3xl sm:text-4xl font-bold leading-tight">
+              <div className="flex items-start justify-start gap-3">
+                <h1 className="min-w-0 text-left text-3xl sm:text-4xl font-bold leading-tight">
                   {subjectArea} {catalogNumber}: {courseTitle}
                 </h1>
               </div>

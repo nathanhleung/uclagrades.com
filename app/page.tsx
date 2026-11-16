@@ -30,8 +30,8 @@ export default function Home() {
             <Link href="/">uclagrades.com</Link>
           </h2>{" "}
           <h1 className="ml-1 inline text-xl sm:text-2xl font-medium leading-snug text-gray-700">
-            is where to find the latest UCLA grade distributions — available by
-            course, professor, and quarter.
+            has the latest UCLA grade distributions, available by course,
+            professor, and quarter.
           </h1>
         </div>
         <p className="text-sm text-gray-400">
