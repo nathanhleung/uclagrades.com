@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { ImageResponse } from "next/og";
-import { compareGrades, compareTerms, getTermLongName } from "@/app/utils";
+import { compareGrades, getTermLongName } from "@/app/utils";
+import { groupBy, mapValues, sumBy, uniqBy } from "lodash";
 import { UCLA_GRADE_POINTS } from "@/app/constants";
 import subjectIndexJson from "@/app/generated/subject-index.json";
 import detailsIndexJson from "@/app/generated/course-details-index.json";
@@ -34,18 +35,18 @@ const fonts = ([400, 700] as const).map((weight) => ({
 /** Image-only statistics; keep the interactive chart independent. */
 function getChartStats(grades: { x: string; y: number }[]) {
   const validGrades = grades.filter(({ y }) => Number.isFinite(y) && y >= 0);
-  const total = validGrades.reduce((sum, { y }) => sum + y, 0);
+  const total = sumBy(validGrades, ({ y }) => y);
   const letterGrades = validGrades.filter(({ x }) =>
     Object.hasOwn(UCLA_GRADE_POINTS, x),
   );
-  const letterGradeCount = letterGrades.reduce((sum, { y }) => sum + y, 0);
-  const aRangeCount = letterGrades.reduce(
-    (sum, { x, y }) => sum + (/^A[+-]?$/.test(x) ? y : 0),
-    0,
+  const letterGradeCount = sumBy(letterGrades, ({ y }) => y);
+  const aRangeCount = sumBy(
+    letterGrades.filter(({ x }) => /^A[+-]?$/.test(x)),
+    ({ y }) => y,
   );
-  const gradePoints = letterGrades.reduce(
-    (sum, { x, y }) => sum + UCLA_GRADE_POINTS[x] * y,
-    0,
+  const gradePoints = sumBy(
+    letterGrades,
+    ({ x, y }) => UCLA_GRADE_POINTS[x] * y,
   );
   return {
     total,
@@ -55,53 +56,19 @@ function getChartStats(grades: { x: string; y: number }[]) {
   };
 }
 
-/** The default social preview uses the most represented instructor's latest term. */
-function getDefaultChart(rows: CourseRow[]) {
-  const instructors = new Map<string, number>();
-  for (const row of rows)
-    instructors.set(
-      row.instructorName,
-      (instructors.get(row.instructorName) ?? 0) + 1,
-    );
-  const instructor = Array.from(instructors.keys()).reduce(
-    (best, name) =>
-      instructors.get(name)! > (instructors.get(best) ?? 0) ? name : best,
-    instructors.keys().next().value ?? "",
-  );
-  const instructorRows = rows.filter(
-    (row) => row.instructorName === instructor,
-  );
-  const term =
-    instructorRows
-      .map((row) => row.enrollmentTerm)
-      .sort(compareTerms)
-      .at(-1) ?? "";
-  const counts = new Map<string, number>();
-  for (const row of instructorRows) {
-    const count = Number(row.gradeCount);
-    if (row.enrollmentTerm === term && Number.isFinite(count) && count >= 0) {
-      counts.set(row.gradeOffered, (counts.get(row.gradeOffered) ?? 0) + count);
-    }
-  }
-  const grades = Array.from(counts, ([x, y]) => ({ x, y })).sort((a, b) =>
-    compareGrades(a.x, b.x),
-  );
-  return { instructor, term, grades };
-}
-
 /** Coarser letter-grade buckets keep social previews legible at thumbnail size. */
 function getLetterGradeGroups(grades: { x: string; y: number }[]) {
   return ["A", "B", "C", "D", "F"].map((letter) => ({
     x: letter,
-    y: grades.reduce(
-      (sum, { x, y }) =>
-        /^(?:[ABCD][+-]?|F)$/.test(x) &&
-        x[0] === letter &&
-        Number.isFinite(y) &&
-        y >= 0
-          ? sum + y
-          : sum,
-      0,
+    y: sumBy(
+      grades.filter(
+        ({ x, y }) =>
+          /^(?:[ABCD][+-]?|F)$/.test(x) &&
+          x[0] === letter &&
+          Number.isFinite(y) &&
+          y >= 0,
+      ),
+      ({ y }) => y,
     ),
   }));
 }
@@ -111,10 +78,18 @@ export const dynamicParams = false;
 
 export function generateStaticParams() {
   return Object.entries(subjectIndex).flatMap(([subjectArea, catalog]) =>
-    Object.keys(catalog).map((catalogNumber) => ({
-      subjectArea,
-      catalogNumberDotPng: `${catalogNumber}.png`,
-    })),
+    subjectArea === subjectArea.toUpperCase()
+      ? Object.entries(catalog).flatMap(([catalogNumber, rows]) =>
+          uniqBy(rows, (row) =>
+            JSON.stringify([row.instructorName, row.enrollmentTerm]),
+          ).map((row) => ({
+            subjectArea,
+            catalogNumber,
+            instructorName: row.instructorName || "~",
+            termDotPng: `${row.enrollmentTerm}.png`,
+          })),
+        )
+      : [],
   );
 }
 
@@ -122,15 +97,24 @@ export async function GET(
   _: Request,
   {
     params,
-  }: { params: Promise<{ subjectArea: string; catalogNumberDotPng: string }> },
+  }: {
+    params: Promise<{
+      subjectArea: string;
+      catalogNumber: string;
+      instructorName: string;
+      termDotPng: string;
+    }>;
+  },
 ) {
-  const { subjectArea, catalogNumberDotPng } = await params;
+  const { subjectArea, catalogNumber, instructorName, termDotPng } = mapValues(
+    await params,
+    decodeURIComponent,
+  );
   const catalog = Object.hasOwn(subjectIndex, subjectArea)
     ? subjectIndex[subjectArea]
     : undefined;
-  const catalogNumber = catalogNumberDotPng.slice(0, -4);
   if (
-    !catalogNumberDotPng.endsWith(".png") ||
+    !termDotPng.endsWith(".png") ||
     !catalog ||
     !Object.hasOwn(catalog, catalogNumber)
   ) {
@@ -141,11 +125,37 @@ export async function GET(
     detailsIndex[subjectArea]?.[catalogNumber]?.find(
       (entry) => !/\(Effective\b/i.test(entry.courseTitle),
     )?.courseTitle ?? rows[0].courseTitle;
-  const view = getDefaultChart(rows);
+  const instructor = instructorName === "~" ? "" : instructorName;
+  const term = termDotPng.slice(0, -4);
+  const selectedRows = rows.filter(
+    (row) => row.instructorName === instructor && row.enrollmentTerm === term,
+  );
+  if (!selectedRows.length)
+    return new Response("Chart not found", { status: 404 });
+  const view = {
+    instructor,
+    term,
+    grades: Object.entries(
+      groupBy(
+        selectedRows.filter(
+          (row) =>
+            Number.isFinite(Number(row.gradeCount)) &&
+            Number(row.gradeCount) >= 0,
+        ),
+        (row) => row.gradeOffered,
+      ),
+    )
+      .map(([grade, gradeRows]) => ({
+        x: grade,
+        y: sumBy(gradeRows, (row) => Number(row.gradeCount)),
+      }))
+      .sort((a, b) => compareGrades(a.x, b.x)),
+  };
   const grades = getLetterGradeGroups(view.grades);
   const maximum = Math.max(1, ...grades.map(({ y }) => y));
   const displayInstructor =
-    view.instructor.split(", ").reverse().join(" ") || "All instructors";
+    view.instructor.split(", ").reverse().join(" ") ||
+    "Instructor not recorded";
   const stats = getChartStats(view.grades);
   const code = `${subjectArea} ${catalogNumber}`;
   const mode = grades

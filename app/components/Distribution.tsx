@@ -9,7 +9,7 @@ import useCourseData from "../hooks/useCourseData";
 import { compareGrades, compareTerms, getTermLongName } from "../utils";
 import { Loading } from "./Loading";
 import { Select } from "./Select";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { ShareButton } from "./ShareButton";
 
 type DistributionProps = {
@@ -22,6 +22,17 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
   const [selectedInstructorName, setSelectedInstructorName] = useState("");
 
   const searchParams = useSearchParams();
+  const routeParams = useParams<{ instructorName?: string; term?: string }>();
+  const pathInstructor =
+    routeParams.instructorName === "~"
+      ? ""
+      : routeParams.instructorName === undefined
+        ? undefined
+        : decodeURIComponent(routeParams.instructorName);
+  const pathTerm =
+    routeParams.term === undefined
+      ? undefined
+      : decodeURIComponent(routeParams.term);
   const [selectedTerm, setSelectedTerm] = useState<string>("");
 
   const courseDataByInstructorName = useMemo(
@@ -38,13 +49,18 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
 
   // Resolve shared instructor filters after the course data has loaded.
   useEffect(() => {
-    const requested = searchParams.get("instructor");
+    const requested = searchParams.get("instructor") ?? pathInstructor ?? null;
     const instructor =
       requested !== null && Object.hasOwn(courseDataByInstructorName, requested)
         ? requested
         : instructorWithMostSections;
     if (instructor !== undefined) setSelectedInstructorName(instructor);
-  }, [searchParams, courseDataByInstructorName, instructorWithMostSections]);
+  }, [
+    searchParams,
+    pathInstructor,
+    courseDataByInstructorName,
+    instructorWithMostSections,
+  ]);
 
   const courseDataByInstructorNameByTerm = useMemo(
     () =>
@@ -98,13 +114,13 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
   );
 
   useEffect(() => {
-    const requested = searchParams.get("term") ?? "";
+    const requested = searchParams.get("term") ?? pathTerm ?? "";
     setSelectedTerm(
       instructorTerms.includes(requested)
         ? requested
         : (last(instructorTerms) ?? ""),
     );
-  }, [instructorTerms, searchParams]);
+  }, [instructorTerms, searchParams, pathTerm]);
 
   const gradeCountsForInstructorNameForTerm =
     gradeCountsByInstructorNameByTerm?.[selectedInstructorName]?.[selectedTerm];
@@ -181,7 +197,15 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                       "instructor",
                       newSelectedInstructorName,
                     );
-                    url.searchParams.delete("term");
+                    const latestTerm =
+                      last(
+                        Object.keys(
+                          gradeCountsByInstructorNameByTerm[
+                            newSelectedInstructorName
+                          ] ?? {},
+                        ).sort(compareTerms),
+                      ) ?? "";
+                    url.searchParams.set("term", latestTerm);
                     history.replaceState({}, "", url);
                   }
                 }}

@@ -36,8 +36,8 @@ export function ShareButton({
       clearTimeout(confirmationTimer.current);
     }
     const coursePath = `/${encodeURIComponent(subjectArea)}/${encodeURIComponent(catalogNumber)}`;
-    const query = new URLSearchParams({ instructor, term });
-    const url = new URL(`${coursePath}?${query}`, window.location.origin).href;
+    const selectionPath = `${coursePath}/${encodeURIComponent(instructor || "~")}/${encodeURIComponent(term)}`;
+    const url = new URL(selectionPath, window.location.origin).href;
     try {
       await navigator.clipboard.writeText(url);
       setMessage("Link copied.");

@@ -6,7 +6,7 @@ import { compareTerms, getTermLongName } from "@/app/utils";
 import type { Metadata } from "next";
 import { InstructorGradeTable } from "@/app/components/InstructorGradeTable";
 import { notFound } from "next/navigation";
-import { groupBy, last, sumBy, uniq } from "lodash";
+import { groupBy, last, maxBy, sumBy, uniq } from "lodash";
 
 type Props = {
   params: Promise<{ subjectArea: string; catalogNumber: string }>;
@@ -41,8 +41,21 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const course = getCourseFromParams(await params);
+  const defaultRows =
+    maxBy(
+      Object.values(
+        groupBy(
+          subjectIndex[course.subjectArea][course.catalogNumber],
+          (row) => row.instructorName,
+        ),
+      ),
+      (rows) => rows.length,
+    ) ?? [];
+  const instructor = defaultRows[0]?.instructorName || "~";
+  const term =
+    last(defaultRows.map((row) => row.enrollmentTerm).sort(compareTerms)) ?? "";
   const image = {
-    url: `/og-image${course.path}.png`,
+    url: `/og-image${course.path}/${encodeURIComponent(instructor)}/${encodeURIComponent(term)}.png`,
     width: 1200,
     height: 630,
     alt: `${course.subjectArea} ${course.catalogNumber} grade distribution`,
