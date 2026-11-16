@@ -256,7 +256,7 @@ const Distribution = ({ subjectArea, catalogNumber }: DistributionProps) => {
                 tooltip: {
                   callbacks: {
                     label: (context) => {
-                      const gradeCount = context.parsed.y;
+                      const gradeCount = context.parsed.y ?? 0;
                       const percentageOfTotal =
                         (gradeCount /
                           (totalGradeCountForInstructorNameForTerm || 1)) *
