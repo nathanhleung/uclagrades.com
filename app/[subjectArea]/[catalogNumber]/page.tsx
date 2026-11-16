@@ -42,6 +42,12 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const course = getCourseFromParams(await params);
+  const image = {
+    url: `/og-image${course.path}.png`,
+    width: 1200,
+    height: 630,
+    alt: `${course.subjectArea} ${course.catalogNumber} grade distribution`,
+  };
   const title = `${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle}`;
   const description = `Explore UCLA grade distributions for ${course.subjectArea} ${course.catalogNumber}: ${course.courseTitle}. Compare grades by instructor and term. Available terms: ${course.terms[0]}${course.terms.length > 1 ? ` through ${course.terms[course.terms.length - 1]}` : ""}.`;
 
@@ -53,10 +59,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: course.path,
+      images: [image],
       siteName: "UCLA Grade Distributions",
       type: "website",
     },
-    twitter: { card: "summary", title, description },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
   };
 }
 
