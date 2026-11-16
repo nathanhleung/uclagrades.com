@@ -1,6 +1,7 @@
 import { Distribution } from "@/app/components/Distribution";
 import { ShareCourseButton } from "@/app/components/ShareCourseButton";
 import subjectIndexJson from "@/app/generated/subject-index.json";
+import courseDetailsIndexJson from "@/app/generated/course-details-index.json";
 import type { CourseRow } from "@/app/types";
 import { compareTerms, getTermLongName } from "@/app/utils";
 import type { Metadata } from "next";
@@ -16,6 +17,17 @@ const subjectIndex: Record<
   string,
   Record<string, CourseRow[]>
 > = subjectIndexJson;
+
+const courseDetailsIndex: Record<
+  string,
+  Record<
+    string,
+    {
+      courseTitle: string;
+      cleanedDescription: string;
+    }[]
+  >
+> = courseDetailsIndexJson;
 
 export function generateStaticParams() {
   return Object.entries(subjectIndex).flatMap(([subjectArea, courses]) =>
@@ -47,8 +59,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Course({ params }: Props) {
-  const { subjectArea, catalogNumber, courseTitle, instructors, terms, path } =
-    getCourseFromParams(await params);
+  const {
+    subjectArea,
+    catalogNumber,
+    courseTitle,
+    description,
+    instructors,
+    terms,
+    path,
+  } = getCourseFromParams(await params);
   const subjectPath = `/?subjectArea=${encodeURIComponent(subjectArea)}`;
   const breadcrumb = {
     "@context": "https://schema.org",
@@ -76,7 +95,7 @@ export default async function Course({ params }: Props) {
       <div className="text-center">
         <div className="flex items-center justify-between p-6 sm:p-8 md:p-12">
           <div className="flex flex-1 justify-center items-center">
-            <div className="text-center">
+            <div className="w-full max-w-3xl text-center">
               <div className="flex justify-center gap-2 mb-6">
                 <a className="text-uclaBlue hover:opacity-50" href={`/`}>
                   Home
@@ -93,14 +112,22 @@ export default async function Course({ params }: Props) {
                   {catalogNumber}
                 </a>
               </div>
-              <h1 className="flex flex-1 text-4xl mb-4 font-bold items-center justify-center gap-4">
-                {subjectArea} {catalogNumber}
-                <ShareCourseButton
-                  subjectArea={subjectArea}
-                  catalogNumber={catalogNumber}
-                />
-              </h1>
-              <h2 className="flex-1 text-2xl">{courseTitle}</h2>
+              <div className="flex items-start justify-center gap-3">
+                <h1 className="min-w-0 text-3xl sm:text-4xl font-bold leading-tight">
+                  {subjectArea} {catalogNumber}: {courseTitle}
+                </h1>
+                <div className="shrink-0 pt-1">
+                  <ShareCourseButton
+                    subjectArea={subjectArea}
+                    catalogNumber={catalogNumber}
+                  />
+                </div>
+              </div>
+              {description && (
+                <p className="mt-5 text-left text-base leading-relaxed text-gray-700">
+                  {description}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -111,22 +138,6 @@ export default async function Course({ params }: Props) {
                 subjectArea={subjectArea}
                 catalogNumber={catalogNumber}
               />
-            </div>
-            <div className="flex flex-col md:flex-row gap-2 mt-8">
-              <a
-                className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
-                href={subjectPath}
-              >
-                View more {subjectArea} courses
-              </a>
-              <a
-                className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform?usp=sf_link"
-              >
-                Report missing data
-              </a>
             </div>
             <div className="w-full min-w-0 text-left text-xs">
               {instructors.length > 0 && (
@@ -155,6 +166,23 @@ export default async function Course({ params }: Props) {
                 </div>
               </dl>
             </div>
+
+            <div className="flex flex-col md:flex-row gap-2 mt-8">
+              <a
+                className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
+                href={subjectPath}
+              >
+                See All {subjectArea} Courses
+              </a>
+              <a
+                className="inline-flex items-center justify-center rounded border border-white/30 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uclaGold"
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSeVFPZF-0_28UPTVeZH-g2TA9gLlVvNxqDXNsIvIAMSoCJYCQ/viewform?usp=sf_link"
+              >
+                Report Missing Data
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -179,6 +207,13 @@ function getCourseFromParams(params: Awaited<Props["params"]>) {
   if (!rows?.length) {
     notFound();
   }
+
+  const details = courseDetailsIndex[subjectArea]?.[catalogNumber];
+  // Prefer the current catalog entry over annotated future-effective versions.
+  const detail = details?.find(
+    (entry) => !/\(Effective\b/i.test(entry.courseTitle),
+  );
+  const courseTitle = detail?.courseTitle ?? rows[0].courseTitle;
 
   const terms = uniq(rows.map((row) => row.enrollmentTerm))
     .sort(compareTerms)
@@ -219,7 +254,8 @@ function getCourseFromParams(params: Awaited<Props["params"]>) {
   return {
     subjectArea,
     catalogNumber,
-    courseTitle: rows[0].courseTitle,
+    courseTitle,
+    description: detail?.cleanedDescription,
     terms,
     instructors,
     path: `/${encodeURIComponent(subjectArea)}/${encodeURIComponent(catalogNumber)}`,
