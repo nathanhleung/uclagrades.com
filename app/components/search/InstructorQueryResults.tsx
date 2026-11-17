@@ -37,9 +37,19 @@ const InstructorQueryResults = ({
       });
     }
 
+    /**
+     * Names are stored as "LAST, FIRST", so match words separately
+     * unless the query has a comma.
+     */
+    const queryWords =
+      normalizedQuery.indexOf(",") !== -1
+        ? [normalizedQuery]
+        : normalizedQuery.split(/\s+/);
+
     return (instructorName: string) => {
-      const matches =
-        instructorName.toLowerCase().indexOf(normalizedQuery) !== -1;
+      const matches = queryWords.every(
+        (word) => instructorName.toLowerCase().indexOf(word) !== -1,
+      );
       const nCourses = Object.values(instructors[instructorName]).reduce(
         (acc, subjectAreaCourses) => {
           return acc + Object.keys(subjectAreaCourses).length;
